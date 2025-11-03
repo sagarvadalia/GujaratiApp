@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, YStack, Button } from 'tamagui';
+import { View, Text, ScrollView, YStack } from 'tamagui';
 import { QuestionCard } from '../../components/quiz/QuestionCard';
 import { AnswerButton } from '../../components/quiz/AnswerButton';
 import { QuizFeedback } from '../../components/quiz/QuizFeedback';
@@ -7,6 +7,7 @@ import { useQuizStore } from '../../store/quizStore';
 import { useProgressStore } from '../../store/progressStore';
 import { trpc } from '../../utils/trpc';
 import { QuizQuestion } from '../../src/types/quiz';
+import { Button as UIButton, Card as UICard } from '../../components/ui';
 
 export default function LearnScreen() {
   const { currentSession, startQuiz, answerQuestion, nextQuestion, completeQuiz } =
@@ -123,12 +124,12 @@ export default function LearnScreen() {
           <Text fontSize="$9" fontWeight="700" color="$color" textAlign="center">
             Practice Quiz
           </Text>
-          <Text fontSize="$5" color="$color" opacity={0.8} textAlign="center">
+          <Text fontSize="$5" color="$mutedForeground" textAlign="center">
             Test your knowledge with interactive quizzes
           </Text>
-          <Button size="$5" onPress={handleStartQuiz} marginTop="$4">
+          <UIButton size="lg" onPress={handleStartQuiz} marginTop="$2">
             Start Quiz
-          </Button>
+          </UIButton>
         </YStack>
       </View>
     );
@@ -145,11 +146,11 @@ export default function LearnScreen() {
     <ScrollView flex={1} bg="$background" padding="$4">
       <YStack gap="$4">
         {/* Progress */}
-        <View>
-          <Text fontSize="$4" color="$gray10">
+        <UICard tone="subtle">
+          <Text fontSize="$4" color="$mutedForeground">
             Score: {currentSession.score} / {currentSession.answers.length}
           </Text>
-        </View>
+        </UICard>
 
         {/* Question */}
         <QuestionCard
@@ -207,9 +208,9 @@ export default function LearnScreen() {
 
         {/* Submit Button */}
         {!showFeedback && selectedAnswer && (
-          <Button size="$5" onPress={handleSubmitAnswer} marginTop="$4">
+          <UIButton size="lg" onPress={handleSubmitAnswer} marginTop="$2">
             Submit Answer
-          </Button>
+          </UIButton>
         )}
 
         {/* Feedback */}
@@ -223,19 +224,19 @@ export default function LearnScreen() {
 
         {/* Quiz Complete */}
         {currentSession.completed && (
-          <View padding="$4" bg="$blue2" borderRadius="$4" marginTop="$4">
+          <UICard tone="primary" elevated marginTop="$4">
             <YStack gap="$3" alignItems="center">
-              <Text fontSize="$8" fontWeight="700" color="$blue10">
+              <Text fontSize="$8" fontWeight="700" color="$primaryForeground">
                 Quiz Complete!
               </Text>
-              <Text fontSize="$6" color="$color">
+              <Text fontSize="$6" color="$primaryForeground" opacity={0.9}>
                 Score: {currentSession.score} / {currentSession.questions.length}
               </Text>
-              <Button size="$5" onPress={handleStartQuiz} marginTop="$2">
+              <UIButton size="md" variant="secondary" onPress={handleStartQuiz} marginTop="$2">
                 Try Again
-              </Button>
+              </UIButton>
             </YStack>
-          </View>
+          </UICard>
         )}
       </YStack>
     </ScrollView>

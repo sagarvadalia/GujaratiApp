@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Button, XStack, YStack } from 'tamagui';
+import { View, Text, ScrollView, XStack, YStack } from 'tamagui';
 import { VocabularyCard } from './VocabularyCard';
 import { Vocabulary } from '../../src/types/vocabulary';
 import { trpc } from '../../utils/trpc';
 import { useVocabularyStore, DisplayMode } from '../../store/vocabularyStore';
+import { ToggleGroup, ToggleButton } from '../ui';
 
 interface VocabularyListProps {
   category?: string;
@@ -18,7 +19,11 @@ export function VocabularyList({ category }: VocabularyListProps) {
     : trpc.vocabulary.getAll.useQuery();
 
   const categories = ['all', 'greetings', 'numbers', 'common'] as const;
-  const displayModes: DisplayMode[] = ['gujarati', 'english', 'both'];
+  const displayModes: { mode: DisplayMode; label: string; icon?: string }[] = [
+    { mode: 'gujarati', label: 'Gujarati', icon: 'language' },
+    { mode: 'english', label: 'English', icon: 'text' },
+    { mode: 'both', label: 'Both', icon: 'layers' },
+  ];
 
   if (isLoading) {
     return (
@@ -33,35 +38,19 @@ export function VocabularyList({ category }: VocabularyListProps) {
       {/* Display Mode Toggle */}
       <View padding="$4" paddingBottom="$2">
         <YStack gap="$2">
-          <Text fontSize="$4" fontWeight="600" color="$color" marginBottom="$2">
+          <Text fontSize="$4" fontWeight="600" color="$foreground" marginBottom="$2">
             Display Mode
           </Text>
-          <XStack gap="$2" justifyContent="center">
-            {displayModes.map((mode) => {
-              const isSelected = displayMode === mode;
-              return (
-                <Button
-                  key={mode}
-                  size="$3"
-                  backgroundColor={isSelected ? '$blue10' : '$gray3'}
-                  borderColor={isSelected ? '$blue10' : '$borderColor'}
-                  borderWidth={1}
-                  borderRadius="$4"
-                  paddingHorizontal="$4"
-                  onPress={() => setDisplayMode(mode)}
-                  pressStyle={{ opacity: 0.7 }}
-                >
-                  <Text
-                    color={isSelected ? '#fff' : '$color'}
-                    fontWeight={isSelected ? '600' : '400'}
-                    textTransform="capitalize"
-                  >
-                    {mode}
-                  </Text>
-                </Button>
-              );
-            })}
-          </XStack>
+          <ToggleGroup
+            stretch
+            value={displayMode}
+            onChange={(value) => setDisplayMode(value)}
+            options={displayModes.map((option) => ({
+              value: option.mode,
+              label: option.label,
+              icon: option.icon,
+            }))}
+          />
         </YStack>
       </View>
 
@@ -72,45 +61,41 @@ export function VocabularyList({ category }: VocabularyListProps) {
         paddingVertical="$3"
         paddingHorizontal="$4"
         bg="$background"
+        marginBottom="$2"
       >
         <XStack gap="$2">
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat || (cat === 'all' && !selectedCategory);
             return (
-              <Button
+              <ToggleButton
                 key={cat}
-                size="$3"
-                variant={isSelected ? 'outlined' : 'outlined'}
-                backgroundColor={isSelected ? '$blue10' : '$gray3'}
-                borderColor={isSelected ? '$blue10' : '$borderColor'}
-                borderWidth={1}
-                borderRadius="$4"
-                paddingHorizontal="$4"
+                size="sm"
+                isActive={isSelected}
+                variant={isSelected ? 'secondary' : 'ghost'}
                 onPress={() => setSelectedCategory(cat === 'all' ? undefined : cat)}
-                pressStyle={{ opacity: 0.7 }}
               >
                 <Text
                   textTransform="capitalize"
-                  color={isSelected ? '#fff' : '$color'}
-                  fontWeight={isSelected ? '600' : '400'}
+                  fontWeight={isSelected ? '600' : '500'}
+                  color={isSelected ? '$secondaryForeground' : '$color'}
                 >
                   {cat}
                 </Text>
-              </Button>
+              </ToggleButton>
             );
           })}
         </XStack>
       </ScrollView>
 
       {/* Vocabulary List */}
-      <ScrollView flex={1} padding="$4">
+      <ScrollView flex={1} padding="$4" paddingTop="$2">
         {vocabulary && vocabulary.length > 0 ? (
           vocabulary.map((item: Vocabulary) => (
             <VocabularyCard key={item.id} vocabulary={item} />
           ))
         ) : (
           <View flex={1} justifyContent="center" alignItems="center" paddingTop="$10">
-            <Text fontSize="$6" color="$gray10">
+            <Text fontSize="$6" color="$mutedForeground">
               No vocabulary found
             </Text>
           </View>

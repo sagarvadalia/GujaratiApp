@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, Card, YStack, XStack } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
+import { Text, YStack, XStack } from 'tamagui';
 import { Vocabulary } from '../../src/types/vocabulary';
 import { AudioPlayer } from './AudioPlayer';
-import { useVocabularyStore, DisplayMode } from '../../store/vocabularyStore';
+import { useVocabularyStore } from '../../store/vocabularyStore';
+import { Card as UICard, Badge } from '../ui';
 
 interface VocabularyCardProps {
   vocabulary: Vocabulary;
@@ -17,26 +17,20 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
   const shouldShowEnglish = displayMode === 'english' || displayMode === 'both';
 
   return (
-    <Card
-      elevate
-      size="$4"
-      bordered
-      animation="bouncy"
-      hoverStyle={{ scale: 0.97 }}
-      pressStyle={{ scale: 0.95 }}
+    <UICard
+      interactive
+      elevated
       onPress={onPress}
       marginBottom="$3"
-      backgroundColor="$background"
-      borderColor="$borderColor"
     >
-      <Card.Header padded>
+      <YStack gap="$3">
         <YStack gap="$3">
           {/* Gujarati Script */}
           {shouldShowGujarati && (
             <Text
               fontSize="$10"
               fontWeight="600"
-              color="$color"
+              color="$foreground"
               textAlign="center"
               fontFamily="System"
             >
@@ -49,7 +43,7 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
             <Text
               fontSize="$6"
               fontWeight="500"
-              color="$blue10"
+              color="$primary"
               textAlign="center"
               opacity={0.9}
             >
@@ -60,7 +54,7 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
           {/* English Translation */}
           <Text
             fontSize="$5"
-            color="$color"
+            color="$foreground"
             textAlign="center"
             opacity={0.7}
           >
@@ -74,17 +68,14 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
 
           {/* Category Badge */}
           <XStack justifyContent="center" alignItems="center" gap="$2">
-            <Ionicons name="bookmark-outline" size={16} color="#666" />
-            <Text fontSize="$3" color="$gray10" textTransform="capitalize">
-              {vocabulary.category}
-            </Text>
-            <Text fontSize="$3" color="$gray10">
-              • Difficulty: {vocabulary.difficulty}/5
+            <Badge tone="muted" size="sm" label={vocabulary.category} />
+            <Text fontSize="$3" color="$mutedForeground">
+              Difficulty: {vocabulary.difficulty}/5
             </Text>
           </XStack>
         </YStack>
-      </Card.Header>
-    </Card>
+      </YStack>
+    </UICard>
   );
 }
 

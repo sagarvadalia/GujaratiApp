@@ -1,7 +1,10 @@
 import React, { useEffect, useState, createContext, useContext } from 'react'
 import { useColorScheme } from 'react-native'
 import { TamaguiProvider as BaseTamaguiProvider, Theme } from 'tamagui'
+import { StatusBar } from 'expo-status-bar'
+
 import { config } from '../tamagui.config'
+import { getSemanticTheme } from '../constants/theme'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -77,10 +80,13 @@ export function TamaguiProvider({
     toggleTheme,
   }
 
+  const activePalette = getSemanticTheme(theme)
+
   return (
     <ThemeContext.Provider value={contextValue}>
       <BaseTamaguiProvider config={config} defaultTheme={theme}>
         <Theme name={theme}>
+          <StatusBar style={contextValue.isDark ? 'light' : 'dark'} backgroundColor={activePalette.background} />
           {children}
         </Theme>
       </BaseTamaguiProvider>

@@ -20,18 +20,18 @@ export function ProgressStats() {
       <Card elevate size="$4" bordered padding="$4">
         <YStack gap="$3">
           <XStack justifyContent="space-between" alignItems="center">
-            <H3 color="$color">Daily Progress</H3>
-            <Text fontSize="$5" fontWeight="600" color="$blue10">
+            <H3 color="$foreground">Daily Progress</H3>
+            <Text fontSize="$5" fontWeight="600" color="$primary">
               {dailyProgress} / {dailyGoal}
             </Text>
           </XStack>
-          <Progress value={progressPercentage} max={100} backgroundColor="$gray5">
-            <Progress.Indicator animation="bouncy" backgroundColor="$blue10" />
+          <Progress value={progressPercentage} max={100} backgroundColor="$muted">
+            <Progress.Indicator animation="bouncy" backgroundColor="$primary" />
           </Progress>
           {progressPercentage >= 100 && (
             <XStack alignItems="center" gap="$2">
-              <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text fontSize="$4" color="$green10">
+              <Ionicons name="checkmark-circle" size={20} color="$secondary" />
+              <Text fontSize="$4" color="$secondary">
                 Daily goal achieved!
               </Text>
             </XStack>
@@ -43,11 +43,11 @@ export function ProgressStats() {
       <XStack gap="$3" flexWrap="wrap">
         <Card elevate size="$3" bordered padding="$3" flex={1} minWidth="45%">
           <YStack gap="$2" alignItems="center">
-            <Ionicons name="book" size={32} color="#3b82f6" />
-            <Text fontSize="$8" fontWeight="700" color="$blue10">
+            <Ionicons name="book" size={32} color="$primary" />
+            <Text fontSize="$8" fontWeight="700" color="$primary">
               {wordsLearned}
             </Text>
-            <Text fontSize="$3" color="$gray10" textAlign="center">
+            <Text fontSize="$3" color="$mutedForeground" textAlign="center">
               Words Learned
             </Text>
           </YStack>
@@ -55,11 +55,11 @@ export function ProgressStats() {
 
         <Card elevate size="$3" bordered padding="$3" flex={1} minWidth="45%">
           <YStack gap="$2" alignItems="center">
-            <Ionicons name="stats-chart" size={32} color="#22c55e" />
-            <Text fontSize="$8" fontWeight="700" color="$green10">
+            <Ionicons name="stats-chart" size={32} color="$secondary" />
+            <Text fontSize="$8" fontWeight="700" color="$secondary">
               {accuracyRate.toFixed(1)}%
             </Text>
-            <Text fontSize="$3" color="$gray10" textAlign="center">
+            <Text fontSize="$3" color="$mutedForeground" textAlign="center">
               Accuracy Rate
             </Text>
           </YStack>
@@ -70,7 +70,7 @@ export function ProgressStats() {
       {completedCategories.length > 0 && (
         <Card elevate size="$4" bordered padding="$4">
           <YStack gap="$3">
-            <H3 color="$color">Completed Categories</H3>
+            <H3 color="$foreground">Completed Categories</H3>
             <XStack gap="$2" flexWrap="wrap">
               {completedCategories.map((category) => (
                 <View
@@ -78,9 +78,9 @@ export function ProgressStats() {
                   paddingHorizontal="$3"
                   paddingVertical="$2"
                   borderRadius="$3"
-                  backgroundColor="$blue5"
+                  backgroundColor="$muted"
                 >
-                  <Text fontSize="$3" color="$blue10" textTransform="capitalize">
+                  <Text fontSize="$3" color="$accent" textTransform="capitalize">
                     {category}
                   </Text>
                 </View>

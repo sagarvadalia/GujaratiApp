@@ -9,12 +9,12 @@ export function StreakDisplay() {
   return (
     <Card elevate size="$4" bordered padding="$4">
       <YStack gap="$3" alignItems="center">
-        <Ionicons name="flame" size={48} color="#ff6b35" />
-        <H3 color="$color">Current Streak</H3>
-        <Text fontSize="$10" fontWeight="700" color="$orange10">
+        <Ionicons name="flame" size={48} color="$primary" />
+        <H3 color="$foreground">Current Streak</H3>
+        <Text fontSize="$10" fontWeight="700" color="$primary">
           {currentStreak} days
         </Text>
-        <Text fontSize="$4" color="$gray10">
+        <Text fontSize="$4" color="$mutedForeground">
           Longest streak: {longestStreak} days
         </Text>
       </YStack>

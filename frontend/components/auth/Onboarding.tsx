@@ -61,11 +61,11 @@ export function Onboarding() {
           {steps[currentStep].icon}
         </Text>
         
-        <H3 textAlign="center" color="$color">
+        <H3 textAlign="center" color="$foreground">
           {steps[currentStep].title}
         </H3>
         
-        <Text fontSize="$5" textAlign="center" color="$color" opacity={0.8}>
+        <Text fontSize="$5" textAlign="center" color="$foreground" opacity={0.8}>
           {steps[currentStep].description}
         </Text>
 
@@ -110,7 +110,7 @@ export function Onboarding() {
               width={8}
               height={8}
               borderRadius={4}
-              bg={index === currentStep ? '$blue10' : '$gray5'}
+              bg={index === currentStep ? '$primary' : '$muted'}
             />
           ))}
         </XStack>

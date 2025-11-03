@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import { View, Text, Button, Sheet, useTheme as useTamaguiTheme } from 'tamagui'
+import { View, Text, Sheet, useTheme as useTamaguiTheme, XStack, YStack, Popover } from 'tamagui'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../hooks/useTheme'
 import { useRouter } from 'expo-router'
 import { useAuthStore } from '../store/authStore'
 import { useAuth } from '@clerk/clerk-expo'
+import { useVocabularyStore, DisplayMode } from '../store/vocabularyStore'
+import { Button as UIButton, IconButton, ToggleButton } from './ui'
 
 interface NavbarProps {
   title?: string
@@ -17,8 +19,10 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
   const theme = useTamaguiTheme()
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [displayModeOpen, setDisplayModeOpen] = useState(false)
   const { isGuest } = useAuthStore()
   const { isSignedIn } = useAuth()
+  const { displayMode, setDisplayMode } = useVocabularyStore()
 
   const menuItems = [
     { label: 'Home', route: '/', icon: 'home', requiresAuth: false },
@@ -45,12 +49,20 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
     }
   }
 
+  const displayModeOptions: { mode: DisplayMode; label: string; icon: string }[] = [
+    { mode: 'gujarati', label: 'Gujarati', icon: 'language' },
+    { mode: 'english', label: 'English', icon: 'text' },
+    { mode: 'both', label: 'Both', icon: 'layers' },
+  ]
+
+  const currentDisplayMode = displayModeOptions.find((opt) => opt.mode === displayMode) || displayModeOptions[2]
+
   return (
     <>
       <View
-        bg="$background"
+        bg="$card"
         borderBottomWidth={1}
-        borderBottomColor="$borderColor"
+        borderBottomColor="$border"
         paddingTop={insets.top}
         paddingHorizontal="$4"
         paddingBottom="$3"
@@ -64,47 +76,116 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
         shadowRadius={4}
       >
         {/* Menu Button */}
-        <Button
-          size="$4"
-          circular
-          chromeless
+        <IconButton
+          variant="ghost"
           onPress={() => setMenuOpen(true)}
           icon={
             <Ionicons
               name="menu"
-              size={24}
+              size={22}
               color={theme.color?.val || '#000'}
             />
           }
-          pressStyle={{ opacity: 0.7 }}
         />
 
         {/* App Title */}
         <Text
           fontSize="$6"
           fontWeight="600"
-          color="$color"
+          color="$foreground"
           flex={1}
           textAlign="center"
         >
           {title}
         </Text>
 
-        {/* Dark Mode Toggle */}
-        <Button
-          size="$4"
-          circular
-          chromeless
-          onPress={toggleTheme}
-          icon={
-            <Ionicons
-              name={isDark ? 'sunny' : 'moon'}
-              size={24}
-              color={theme.color?.val || '#000'}
-            />
-          }
-          pressStyle={{ opacity: 0.7 }}
-        />
+        {/* Display Mode Dropdown & Dark Mode Toggle */}
+        <XStack gap="$2" alignItems="center">
+          <Popover open={displayModeOpen} onOpenChange={setDisplayModeOpen}>
+            <Popover.Trigger asChild>
+              <UIButton
+                variant="ghost"
+                size="sm"
+                borderRadius="$6"
+                paddingHorizontal="$3"
+                paddingVertical="$2"
+              >
+                <XStack alignItems="center" gap="$1">
+                  <Ionicons
+                    name={currentDisplayMode.icon as any}
+                    size={18}
+                    color={theme.color?.val || '#000'}
+                  />
+                  <Text fontSize="$3" color="$color" fontWeight="600">
+                    {currentDisplayMode.label}
+                  </Text>
+                  <Ionicons
+                    name={displayModeOpen ? 'chevron-up' : 'chevron-down'}
+                    size={14}
+                    color={theme.color?.val || '#000'}
+                  />
+                </XStack>
+              </UIButton>
+            </Popover.Trigger>
+            <Popover.Content
+              borderWidth={1}
+              borderColor="$border"
+              borderRadius="$6"
+              padding="$2"
+              bg="$card"
+              shadowColor="$shadowColor"
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.1}
+              shadowRadius={4}
+            >
+              <YStack gap="$1">
+                {displayModeOptions.map((option) => {
+                  const isSelected = displayMode === option.mode
+                  return (
+                    <ToggleButton
+                      key={option.mode}
+                      size="sm"
+                      isActive={isSelected}
+                      variant={isSelected ? 'secondary' : 'ghost'}
+                      justifyContent="flex-start"
+                      paddingHorizontal="$3"
+                      paddingVertical="$2"
+                      onPress={() => {
+                        setDisplayMode(option.mode)
+                        setDisplayModeOpen(false)
+                      }}
+                    >
+                      <XStack alignItems="center" gap="$2">
+                        <Ionicons
+                          name={option.icon as any}
+                          size={18}
+                          color={isSelected ? theme.secondaryForeground?.val || '#fff' : theme.color?.val || '#000'}
+                        />
+                        <Text fontSize="$4" color={isSelected ? '$secondaryForeground' : '$color'} fontWeight={isSelected ? '600' : '500'}>
+                          {option.label}
+                        </Text>
+                        {isSelected && (
+                          <Ionicons name="checkmark" size={16} color={theme.secondaryForeground?.val || '#fff'} />
+                        )}
+                      </XStack>
+                    </ToggleButton>
+                  )
+                })}
+              </YStack>
+            </Popover.Content>
+          </Popover>
+          <IconButton
+            variant="ghost"
+            onPress={toggleTheme}
+            icon={
+              <Ionicons
+                name={isDark ? 'sunny' : 'moon'}
+                size={22}
+                color={theme.color?.val || '#000'}
+              />
+            }
+          />
+        </XStack>
       </View>
 
       {/* Menu Sheet */}
@@ -124,8 +205,8 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
         />
         <Sheet.Handle />
         <Sheet.Frame
-          bg="$background"
-          padding="$4"
+          bg="$card"
+          padding="$5"
           paddingTop={insets.top}
         >
           <View gap="$3">
@@ -135,19 +216,17 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
             {menuItems.map((item) => {
               const isDisabled = item.requiresAuth && isGuest && !isSignedIn;
               return (
-                <Button
+                <UIButton
                   key={item.route}
-                  size="$5"
+                  variant="ghost"
+                  size="lg"
                   justifyContent="flex-start"
-                  bg="$background"
-                  borderWidth={0}
-                  borderRadius="$4"
+                  borderRadius="$6"
                   paddingHorizontal="$4"
                   paddingVertical="$3"
                   onPress={() => handleNavigation(item.route, item.requiresAuth)}
                   disabled={isDisabled}
                   opacity={isDisabled ? 0.5 : 1}
-                  pressStyle={{ bg: '$backgroundHover', opacity: 0.8 }}
                   icon={
                     <Ionicons
                       name={item.icon as any}
@@ -160,7 +239,7 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
                     {item.label}
                     {isDisabled && ' (Sign In Required)'}
                   </Text>
-                </Button>
+                </UIButton>
               );
             })}
           </View>

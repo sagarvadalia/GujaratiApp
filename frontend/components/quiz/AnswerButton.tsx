@@ -1,6 +1,7 @@
 import React from 'react';
-import { Button, Text } from 'tamagui';
+import { useTheme as useTamaguiTheme } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
+import { Button as UIButton, ButtonProps } from '../ui/button';
 
 interface AnswerButtonProps {
   answer: string;
@@ -17,47 +18,53 @@ export function AnswerButton({
   isCorrect,
   showFeedback,
 }: AnswerButtonProps) {
-  const getButtonColor = () => {
-    if (!showFeedback) {
-      return isSelected ? '$blue10' : '$gray5';
+  const theme = useTamaguiTheme();
+
+  const getVariant = (): ButtonProps['variant'] => {
+    if (showFeedback) {
+      if (isCorrect) return 'success';
+      if (isSelected) return 'destructive';
+      return 'outline';
     }
-    if (isCorrect) {
-      return '$green10';
-    }
-    if (isSelected && !isCorrect) {
-      return '$red10';
-    }
-    return '$gray5';
+
+    return isSelected ? 'default' : 'outline';
   };
 
-  const getIcon = () => {
-    if (!showFeedback) return null;
+  const icon = (() => {
+    if (!showFeedback) return undefined;
     if (isCorrect) {
-      return <Ionicons name="checkmark-circle" size={20} color="#fff" />;
+      return (
+        <Ionicons
+          name="checkmark-circle"
+          size={20}
+          color={theme.successForeground?.val || '#022C22'}
+        />
+      );
     }
     if (isSelected && !isCorrect) {
-      return <Ionicons name="close-circle" size={20} color="#fff" />;
+      return (
+        <Ionicons
+          name="close-circle"
+          size={20}
+          color={theme.destructiveForeground?.val || '#F8FAFC'}
+        />
+      );
     }
-    return null;
-  };
+    return undefined;
+  })();
 
   return (
-    <Button
-      size="$5"
-      backgroundColor={getButtonColor()}
+    <UIButton
+      size="md"
+      variant={getVariant()}
       onPress={onPress}
       disabled={showFeedback}
-      icon={getIcon()}
+      icon={icon}
       iconAfter={false}
+      fontWeight={isSelected ? '700' : '500'}
     >
-      <Text
-        fontSize="$5"
-        fontWeight="500"
-        color={showFeedback && (isCorrect || (isSelected && !isCorrect)) ? '#fff' : '$color'}
-      >
-        {answer}
-      </Text>
-    </Button>
+      {answer}
+    </UIButton>
   );
 }
 

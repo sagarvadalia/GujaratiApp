@@ -75,7 +75,7 @@ export function AudioPlayer({ audioUrl, text }: AudioPlayerProps) {
           <Ionicons
             name={isPlaying ? 'stop' : 'play'}
             size={24}
-            color={isDark ? '#fff' : '#000'}
+            color={isDark ? '$foreground' : '$foreground'}
           />
         }
         onPress={isPlaying ? stopSound : playSound}
