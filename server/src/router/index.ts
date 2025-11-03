@@ -1,5 +1,7 @@
 import { router, publicProcedure } from './_app';
 import { z } from 'zod';
+import { vocabularyRouter } from './vocabulary';
+import { progressRouter } from './progress';
 
 export const appRouter = router({
   hello: publicProcedure
@@ -16,6 +18,9 @@ export const appRouter = router({
       { id: 2, title: 'Post 2', content: 'Content 2' },
     ];
   }),
+
+  vocabulary: vocabularyRouter,
+  progress: progressRouter,
 });
 
 export type AppRouter = typeof appRouter;

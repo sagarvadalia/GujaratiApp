@@ -1,0 +1,90 @@
+import React, { useEffect, useState, createContext, useContext } from 'react'
+import { useColorScheme } from 'react-native'
+import { TamaguiProvider as BaseTamaguiProvider, Theme } from 'tamagui'
+import { config } from '../tamagui.config'
+
+type ThemeMode = 'light' | 'dark' | 'system'
+
+interface ThemeContextValue {
+  theme: 'light' | 'dark'
+  themeMode: ThemeMode
+  isDark: boolean
+  setTheme: (theme: ThemeMode) => void
+  toggleTheme: () => void
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
+
+export function useThemeContext() {
+  const context = useContext(ThemeContext)
+  if (!context) {
+    throw new Error('useThemeContext must be used within TamaguiProvider')
+  }
+  return context
+}
+
+interface TamaguiProviderProps {
+  children: React.ReactNode
+  defaultTheme?: 'light' | 'dark'
+}
+
+export function TamaguiProvider({ 
+  children, 
+  defaultTheme 
+}: TamaguiProviderProps) {
+  const systemColorScheme = useColorScheme()
+  const [themeMode, setThemeMode] = useState<ThemeMode>(
+    defaultTheme ? defaultTheme : 'system'
+  )
+  const [theme, setThemeState] = useState<'light' | 'dark'>(
+    defaultTheme || systemColorScheme || 'light'
+  )
+
+  // Update theme based on themeMode
+  useEffect(() => {
+    if (themeMode === 'system') {
+      setThemeState(systemColorScheme || 'light')
+    } else {
+      setThemeState(themeMode)
+    }
+  }, [themeMode, systemColorScheme])
+
+  // Update theme when system color scheme changes (if in system mode)
+  useEffect(() => {
+    if (!defaultTheme && themeMode === 'system' && systemColorScheme) {
+      setThemeState(systemColorScheme)
+    }
+  }, [systemColorScheme, defaultTheme, themeMode])
+
+  const setTheme = (newTheme: ThemeMode) => {
+    setThemeMode(newTheme)
+  }
+
+  const toggleTheme = () => {
+    const currentTheme = themeMode === 'system' 
+      ? (systemColorScheme || 'light')
+      : themeMode
+    
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
+  }
+
+  const contextValue: ThemeContextValue = {
+    theme,
+    themeMode,
+    isDark: theme === 'dark',
+    setTheme,
+    toggleTheme,
+  }
+
+  return (
+    <ThemeContext.Provider value={contextValue}>
+      <BaseTamaguiProvider config={config} defaultTheme={theme}>
+        <Theme name={theme}>
+          {children}
+        </Theme>
+      </BaseTamaguiProvider>
+    </ThemeContext.Provider>
+  )
+}
+
