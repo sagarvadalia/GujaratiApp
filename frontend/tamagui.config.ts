@@ -63,7 +63,7 @@ export const config = createTamagui({
 type OurConfig = typeof config;
 
 declare module "tamagui" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Required for Tamagui type augmentation
   interface TamaguiCustomConfig extends OurConfig {}
 }
 

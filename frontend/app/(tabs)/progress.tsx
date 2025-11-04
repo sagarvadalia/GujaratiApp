@@ -7,12 +7,19 @@ import { Button, Card, H3, Progress, ScrollView, Sheet,Text, View, XStack, YStac
 import { ProgressStats } from '../../components/progress/ProgressStats';
 import { StreakDisplay } from '../../components/progress/StreakDisplay';
 import { useAuthStore } from '../../store/authStore';
+import { trpc } from '../../utils/trpc';
 
 export default function ProgressScreen() {
   const router = useRouter();
   const { isGuest } = useAuthStore();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, userId } = useAuth();
   const [showSignInModal, setShowSignInModal] = useState(false);
+
+  const { data: achievements } = trpc.achievements.getAll.useQuery();
+  const { data: userAchievements } = trpc.achievements.getUserAchievements.useQuery(
+    { userId: userId ?? '' },
+    { enabled: !!userId && isSignedIn }
+  );
 
   // Show skeleton UI with modal for guest users
   if (isGuest && !isSignedIn) {
@@ -181,6 +188,52 @@ export default function ProgressScreen() {
       <View gap="$4" paddingTop="$2">
         <StreakDisplay />
         <ProgressStats />
+        
+        {/* Achievements Section */}
+        {isSignedIn && achievements && userAchievements && (
+          <Card elevate size="$4" bordered padding="$4">
+            <YStack gap="$3">
+              <XStack justifyContent="space-between" alignItems="center">
+                <H3 color="$foreground">Recent Achievements</H3>
+                <Button
+                  variant="outline"
+                  size="$3"
+                  onPress={() => router.push('/(tabs)/achievements')}
+                >
+                  <Text fontSize="$4">View All</Text>
+                </Button>
+              </XStack>
+              <YStack gap="$2">
+                {userAchievements
+                  .sort((a, b) => new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime())
+                  .slice(0, 3)
+                  .map((ua) => {
+                    const achievement = achievements.find((a) => a.id === ua.achievementId);
+                    return achievement ? (
+                      <Card key={ua.achievementId} padding="$3" backgroundColor="$gray2">
+                        <XStack gap="$2" alignItems="center">
+                          <Text fontSize="$6">{achievement.icon}</Text>
+                          <YStack flex={1}>
+                            <Text fontSize="$4" fontWeight="600" color="$color">
+                              {achievement.name}
+                            </Text>
+                            <Text fontSize="$3" color="$mutedForeground">
+                              Unlocked {new Date(ua.unlockedAt).toLocaleDateString()}
+                            </Text>
+                          </YStack>
+                        </XStack>
+                      </Card>
+                    ) : null;
+                  })}
+                {userAchievements.length === 0 && (
+                  <Text fontSize="$4" color="$mutedForeground" textAlign="center" padding="$4">
+                    No achievements unlocked yet. Keep learning to unlock them!
+                  </Text>
+                )}
+              </YStack>
+            </YStack>
+          </Card>
+        )}
       </View>
     </ScrollView>
   );

@@ -12,6 +12,7 @@ import {
 } from "tamagui";
 
 import { Onboarding } from "../components/auth/Onboarding";
+import { XPBar } from "../components/progress/XPBar";
 import { Badge, Button as UIButton, Card as UICard } from "../components/ui";
 import { useAuthStore } from "../store/authStore";
 import { useProgressStore } from "../store/progressStore";
@@ -91,6 +92,9 @@ export default function Index() {
             </Text>
           </YStack>
         </UICard>
+
+        {/* XP Bar - Show for all users */}
+        <XPBar showLevel size="md" />
 
         {/* Daily Goal Progress - Only show if signed in */}
         {isSignedIn && (

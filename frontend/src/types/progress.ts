@@ -10,5 +10,11 @@ export interface UserProgress {
   accuracyRate: number;
   lastActiveDate: Date;
   completedCategories: Category[];
+  xp: number;
+  level: number;
+  totalCrowns: number;
+  hearts: number;
+  maxHearts: number;
+  lastHeartRegen: Date;
 }
 

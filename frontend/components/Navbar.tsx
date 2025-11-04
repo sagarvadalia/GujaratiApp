@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { type Href, useRouter } from "expo-router";
-import { type ComponentProps, useState } from "react";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Popover,
@@ -16,7 +16,7 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { useAuthStore } from "../store/authStore";
 import { type DisplayMode, useVocabularyStore } from "../store/vocabularyStore";
-import { Button as UIButton, IconButton, ToggleButton } from "./ui";
+import { Button as UIButton, Hearts, IconButton, ToggleButton } from "./ui";
 
 type IoniconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -50,6 +50,7 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
 
   const menuItems = [
     { label: "Home", route: "/", icon: "home", requiresAuth: false },
+    { label: "Path", route: "/path", icon: "map", requiresAuth: false },
     { label: "Lessons", route: "/learn", icon: "book", requiresAuth: false },
     {
       label: "Vocabulary",
@@ -57,7 +58,18 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
       icon: "library",
       requiresAuth: false,
     },
-    { label: "Practice", route: "/learn", icon: "flash", requiresAuth: false },
+    {
+      label: "Practice",
+      route: "/practice",
+      icon: "flash",
+      requiresAuth: false,
+    },
+    {
+      label: "Review",
+      route: "/review",
+      icon: "refresh",
+      requiresAuth: false,
+    },
     {
       label: "Progress",
       route: "/progress",
@@ -72,21 +84,24 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
     },
   ] satisfies MenuItem[];
 
-  const handleNavigation = (route: Href, requiresAuth: boolean) => {
-    setMenuOpen(false);
+  const handleNavigation = useCallback(
+    (route: Href, requiresAuth: boolean) => {
+      setMenuOpen(false);
 
-    // Check if route requires authentication
-    if (requiresAuth && isGuest && !isSignedIn) {
-      router.push("/sign-in");
-      return;
-    }
+      // Check if route requires authentication
+      if (requiresAuth && isGuest && !isSignedIn) {
+        router.push("/sign-in");
+        return;
+      }
 
-    if (route === "/") {
-      router.replace("/");
-    } else {
-      router.push(route);
-    }
-  };
+      if (route === "/") {
+        router.replace("/");
+      } else {
+        router.push(route);
+      }
+    },
+    [router, isGuest, isSignedIn]
+  );
 
   const displayModeOptions = [
     { mode: "gujarati", label: "Gujarati", icon: "globe" },
@@ -97,6 +112,39 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
   const currentDisplayMode =
     displayModeOptions.find((opt) => opt.mode === displayMode) ??
     displayModeOptions[2];
+
+  // Memoize menu items to prevent recalculation on every render
+  const renderedMenuItems = useMemo(() => {
+    return menuItems.map((item) => {
+      const isDisabled = item.requiresAuth && isGuest && !isSignedIn;
+      return (
+        <UIButton
+          key={item.label}
+          variant="ghost"
+          size="lg"
+          justifyContent="flex-start"
+          borderRadius="$6"
+          paddingHorizontal="$4"
+          paddingVertical="$3"
+          onPress={() => handleNavigation(item.route, item.requiresAuth)}
+          disabled={isDisabled}
+          opacity={isDisabled ? 0.5 : 1}
+          icon={
+            <Ionicons
+              name={item.icon}
+              size={22}
+              color={theme.color?.val ?? "#000"}
+            />
+          }
+        >
+          <Text fontSize="$5" color="$color" marginLeft="$3">
+            {item.label}
+            {isDisabled && " (Sign In Required)"}
+          </Text>
+        </UIButton>
+      );
+    });
+  }, [menuItems, isGuest, isSignedIn, theme.color?.val, handleNavigation]);
 
   return (
     <>
@@ -142,6 +190,7 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
 
         {/* Display Mode Dropdown & Dark Mode Toggle */}
         <XStack gap="$2" alignItems="center">
+          <Hearts size="sm" showText={false} />
           <Popover open={displayModeOpen} onOpenChange={setDisplayModeOpen}>
             <Popover.Trigger asChild>
               <UIButton
@@ -246,19 +295,24 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
         modal
         open={menuOpen}
         onOpenChange={setMenuOpen}
-        snapPoints={["85%"]}
+        snapPoints={[85]}
         dismissOnSnapToBottom
         zIndex={100_000}
-        animation="medium"
+        animation="quick"
       >
         <Sheet.Overlay
-          animation="lazy"
+          animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
         />
         <Sheet.Handle />
-        <Sheet.Frame backgroundColor="$card" padding="$5" paddingTop={insets.top}>
-          <View gap="$3">
+        <Sheet.Frame
+          backgroundColor="$card"
+          padding="$5"
+          paddingTop={insets.top}
+          animation="quick"
+        >
+          <YStack gap="$3">
             <Text
               fontSize="$8"
               fontWeight="700"
@@ -267,38 +321,8 @@ export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
             >
               Menu
             </Text>
-            {menuItems.map((item) => {
-              const isDisabled = item.requiresAuth && isGuest && !isSignedIn;
-              return (
-                <UIButton
-                  key={item.label}
-                  variant="ghost"
-                  size="lg"
-                  justifyContent="flex-start"
-                  borderRadius="$6"
-                  paddingHorizontal="$4"
-                  paddingVertical="$3"
-                  onPress={() =>
-                    handleNavigation(item.route, item.requiresAuth)
-                  }
-                  disabled={isDisabled}
-                  opacity={isDisabled ? 0.5 : 1}
-                  icon={
-                    <Ionicons
-                      name={item.icon}
-                      size={22}
-                      color={theme.color?.val ?? "#000"}
-                    />
-                  }
-                >
-                  <Text fontSize="$5" color="$color" marginLeft="$3">
-                    {item.label}
-                    {isDisabled && " (Sign In Required)"}
-                  </Text>
-                </UIButton>
-              );
-            })}
-          </View>
+            {renderedMenuItems}
+          </YStack>
         </Sheet.Frame>
       </Sheet>
     </>

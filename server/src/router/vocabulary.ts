@@ -1,29 +1,68 @@
 import { z } from 'zod';
 
+import { prisma } from '../db/client';
 import { TranslationService } from '../services/translation';
-import { categories, initialVocabulary, type Vocabulary } from '../types/vocabulary';
+import { categories } from '../types/vocabulary';
 import { publicProcedure, router } from './_app';
-
-// In-memory storage for Phase 1 (will be replaced with database later)
-let vocabularyData: Vocabulary[] = [...initialVocabulary];
 
 const translationService = new TranslationService();
 
 export const vocabularyRouter = router({
-  getAll: publicProcedure.query(() => {
-    return vocabularyData;
+  getAll: publicProcedure.query(async () => {
+    const items = await prisma.vocabulary.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    return items.map((v) => ({
+      id: v.id,
+      gujarati: v.gujarati,
+      transliteration: v.transliteration,
+      english: v.english,
+      category: v.category,
+      difficulty: v.difficulty,
+      audioUrl: v.audioUrl ?? undefined,
+      imageUrl: v.imageUrl ?? undefined,
+      exampleSentence: v.exampleSentence ?? undefined,
+    }));
   }),
 
   getByCategory: publicProcedure
     .input(z.object({ category: z.enum(categories) }))
-    .query(({ input }) => {
-      return vocabularyData.filter((v) => v.category === input.category);
+    .query(async ({ input }) => {
+      const items = await prisma.vocabulary.findMany({
+        where: { category: input.category },
+        orderBy: { createdAt: 'asc' },
+      });
+      return items.map((v) => ({
+        id: v.id,
+        gujarati: v.gujarati,
+        transliteration: v.transliteration,
+        english: v.english,
+        category: v.category,
+        difficulty: v.difficulty,
+        audioUrl: v.audioUrl ?? undefined,
+        imageUrl: v.imageUrl ?? undefined,
+        exampleSentence: v.exampleSentence ?? undefined,
+      }));
     }),
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ input }) => {
-      return vocabularyData.find((v) => v.id === input.id);
+    .query(async ({ input }) => {
+      const item = await prisma.vocabulary.findUnique({
+        where: { id: input.id },
+      });
+      if (!item) return null;
+      return {
+        id: item.id,
+        gujarati: item.gujarati,
+        transliteration: item.transliteration,
+        english: item.english,
+        category: item.category,
+        difficulty: item.difficulty,
+        audioUrl: item.audioUrl ?? undefined,
+        imageUrl: item.imageUrl ?? undefined,
+        exampleSentence: item.exampleSentence ?? undefined,
+      };
     }),
 
   translate: publicProcedure
@@ -63,15 +102,25 @@ export const vocabularyRouter = router({
         category: z.enum(categories),
         difficulty: z.number().min(1).max(5),
         audioUrl: z.string().optional(),
+        imageUrl: z.string().optional(),
+        exampleSentence: z.string().optional(),
       })
     )
-    .mutation(({ input }) => {
-      const newVocabulary: Vocabulary = {
-        id: Date.now().toString(),
-        ...input,
+    .mutation(async ({ input }) => {
+      const item = await prisma.vocabulary.create({
+        data: input,
+      });
+      return {
+        id: item.id,
+        gujarati: item.gujarati,
+        transliteration: item.transliteration,
+        english: item.english,
+        category: item.category,
+        difficulty: item.difficulty,
+        audioUrl: item.audioUrl ?? undefined,
+        imageUrl: item.imageUrl ?? undefined,
+        exampleSentence: item.exampleSentence ?? undefined,
       };
-      vocabularyData.push(newVocabulary);
-      return newVocabulary;
     }),
 });
 

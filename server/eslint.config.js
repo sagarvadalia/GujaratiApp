@@ -9,9 +9,10 @@ module.exports = defineConfig([
   }),
   {
     name: 'server/overrides',
-    ignores: ['dist/**']
+    ignores: ['dist/**', 'prisma/**']
   }
 ]);
+
 
 
 

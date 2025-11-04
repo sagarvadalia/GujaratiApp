@@ -13,6 +13,16 @@ interface ProgressState extends UserProgress {
   completeCategory: (category: Category) => void;
   resetDailyProgress: () => void;
   setDailyGoal: (goal: number) => void;
+  addXP: (amount: number) => { leveledUp: boolean; previousLevel: number };
+  getXPForLevel: (level: number) => number;
+  getXPForNextLevel: () => number;
+  getXPProgress: () => number; // 0-100 percentage to next level
+  loseHeart: () => void;
+  regenerateHearts: () => void;
+  restoreAllHearts: () => void;
+  earnHeart: () => void; // Earn one heart (for practice mode)
+  getTimeUntilNextHeart: () => number; // milliseconds until next heart regenerates
+  hasHearts: () => boolean;
 }
 
 const getToday = () => {
@@ -38,6 +48,12 @@ const getInitialState = (): UserProgress => ({
   accuracyRate: 0,
   lastActiveDate: new Date(),
   completedCategories: [],
+  xp: 0,
+  level: 1,
+  totalCrowns: 0,
+  hearts: 5,
+  maxHearts: 5,
+  lastHeartRegen: new Date(),
 });
 
 export const useProgressStore = create<ProgressState>()(
@@ -126,6 +142,105 @@ export const useProgressStore = create<ProgressState>()(
         set({
           dailyGoal: goal,
         }),
+      addXP: (amount) => {
+        const state = get();
+        const calculateXPForLevel = (level: number): number => {
+          if (level === 1) return 0;
+          return Math.floor(50 * Math.pow(level - 1, 1.5));
+        };
+
+        const newXP = state.xp + amount;
+        let newLevel = state.level;
+        let xpForNextLevel = calculateXPForLevel(newLevel + 1);
+
+        while (newXP >= xpForNextLevel && newLevel < 100) {
+          newLevel++;
+          xpForNextLevel = calculateXPForLevel(newLevel + 1);
+        }
+
+        const leveledUp = newLevel > state.level;
+        const previousLevel = state.level;
+
+        set({
+          xp: newXP,
+          level: newLevel,
+        });
+
+        return { leveledUp, previousLevel };
+      },
+      getXPForLevel: (level) => {
+        if (level === 1) return 0;
+        return Math.floor(50 * Math.pow(level - 1, 1.5));
+      },
+      getXPForNextLevel: () => {
+        const state = get();
+        const nextLevel = state.level + 1;
+        return state.getXPForLevel(nextLevel);
+      },
+      getXPProgress: () => {
+        const state = get();
+        const currentLevelXP = state.getXPForLevel(state.level);
+        const nextLevelXP = state.getXPForNextLevel();
+        const xpInCurrentLevel = state.xp - currentLevelXP;
+        const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
+        
+        if (xpNeededForNextLevel === 0) return 100;
+        return Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
+      },
+      loseHeart: () => {
+        const state = get();
+        set({
+          hearts: Math.max(0, state.hearts - 1),
+        });
+      },
+      regenerateHearts: () => {
+        const state = get();
+        const HEART_REGEN_INTERVAL_MS = 5 * 60 * 60 * 1000; // 5 hours
+        const now = new Date();
+        const lastRegen = new Date(state.lastHeartRegen);
+        const timeSinceLastRegen = now.getTime() - lastRegen.getTime();
+        const heartsToRegen = Math.floor(timeSinceLastRegen / HEART_REGEN_INTERVAL_MS);
+        
+        if (heartsToRegen > 0) {
+          const newHearts = Math.min(state.maxHearts, state.hearts + heartsToRegen);
+          const newLastRegen = new Date(lastRegen.getTime() + heartsToRegen * HEART_REGEN_INTERVAL_MS);
+          set({
+            hearts: newHearts,
+            lastHeartRegen: newLastRegen,
+          });
+        }
+      },
+      restoreAllHearts: () => {
+        const state = get();
+        set({
+          hearts: state.maxHearts,
+          lastHeartRegen: new Date(),
+        });
+      },
+      earnHeart: () => {
+        const state = get();
+        if (state.hearts < state.maxHearts) {
+          set({
+            hearts: Math.min(state.maxHearts, state.hearts + 1),
+          });
+        }
+      },
+      getTimeUntilNextHeart: () => {
+        const state = get();
+        if (state.hearts >= state.maxHearts) return 0;
+        
+        const HEART_REGEN_INTERVAL_MS = 5 * 60 * 60 * 1000; // 5 hours
+        const now = new Date();
+        const lastRegen = new Date(state.lastHeartRegen);
+        const timeSinceLastRegen = now.getTime() - lastRegen.getTime();
+        const timeUntilNext = HEART_REGEN_INTERVAL_MS - (timeSinceLastRegen % HEART_REGEN_INTERVAL_MS);
+        
+        return Math.max(0, timeUntilNext);
+      },
+      hasHearts: () => {
+        const state = get();
+        return state.hearts > 0;
+      },
     }),
     {
       name: 'progress-storage',

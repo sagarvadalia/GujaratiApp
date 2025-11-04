@@ -1,19 +1,30 @@
 import React from "react";
-import { Button as TamaguiButton, type GetProps, styled } from "tamagui";
+import { type GetProps, styled, Text, XStack } from "tamagui";
 
-const StyledButton = styled(TamaguiButton, {
+const StyledButton = styled(XStack, {
   name: "UIButton",
+  tag: "button",
   borderRadius: "$6",
   borderWidth: 1,
   borderColor: "transparent",
-  fontWeight: "600",
   justifyContent: "center",
   alignItems: "center",
   minHeight: 44,
   gap: "$2",
   paddingHorizontal: "$4",
+  cursor: "pointer",
+  userSelect: "none",
   pressStyle: {
     scale: 0.97,
+  },
+  focusStyle: {
+    outlineWidth: 2,
+    outlineColor: "$ring",
+    outlineStyle: "solid",
+  },
+  disabledStyle: {
+    opacity: 0.5,
+    pointerEvents: "none",
   },
   variants: {
     variant: {
@@ -122,13 +133,31 @@ export type ButtonSize = NonNullable<StyledButtonProps["size"]>;
 export type ButtonProps = Omit<StyledButtonProps, "variant" | "size"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  icon?: React.ReactNode;
 };
 
 export const Button = React.forwardRef<
   React.ElementRef<typeof StyledButton>,
   ButtonProps
->(({ variant = "default", size = "md", ...props }, ref) => {
-  return <StyledButton ref={ref} variant={variant} size={size} {...props} />;
+>(({ variant = "default", size = "md", children, icon, ...props }, ref) => {
+  const fontSizeMap = {
+    sm: "$3",
+    md: "$4",
+    lg: "$5",
+  } as const;
+
+  return (
+    <StyledButton ref={ref} variant={variant} size={size} {...props}>
+      {icon}
+      {typeof children === "string" ? (
+        <Text fontSize={fontSizeMap[size]} fontWeight="600">
+          {children}
+        </Text>
+      ) : (
+        children
+      )}
+    </StyledButton>
+  );
 });
 
 Button.displayName = "Button";

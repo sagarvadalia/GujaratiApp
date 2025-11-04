@@ -1,0 +1,396 @@
+// Prisma schema for Gujarati Learning App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Progress
+model UserProgress {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  xp              Int      @default(0)
+  level           Int      @default(1)
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastActiveDate  DateTime @default(now())
+  wordsLearned    Int      @default(0)
+  accuracyRate    Float    @default(0)
+  dailyProgress   Int      @default(0)
+  dailyGoal       Int      @default(10)
+  hearts          Int      @default(5)
+  maxHearts       Int      @default(5)
+  lastHeartRegen  DateTime @default(now())
+  completedCategories String[] @default([])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_progress")
+}
+
+// Vocabulary
+model Vocabulary {
+  id            String   @id @default(cuid())
+  gujarati      String
+  transliteration String
+  english       String
+  category      String
+  difficulty    Int      @default(1)
+  audioUrl      String?
+  imageUrl      String?
+  exampleSentence String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([difficulty])
+  @@map("vocabulary")
+}
+
+// Grammar Rules
+model GrammarRule {
+  id                    String   @id @default(cuid())
+  title                 String
+  description           String
+  category              String
+  explanation           String
+  difficulty            Int      @default(1)
+  relatedVocabularyIds  String[] @default([])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  examples              GrammarExample[]
+  conjugationPatterns   ConjugationPattern[]
+  tips                  GrammarTip[]
+
+  @@index([category])
+  @@index([difficulty])
+  @@map("grammar_rules")
+}
+
+model GrammarExample {
+  id            String   @id @default(cuid())
+  ruleId        String
+  gujarati      String
+  transliteration String
+  english       String
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  rule          GrammarRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@map("grammar_examples")
+}
+
+model ConjugationPattern {
+  id        String   @id @default(cuid())
+  ruleId    String
+  tense     String
+  person    String
+  createdAt DateTime @default(now())
+
+  rule      GrammarRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  forms     ConjugationForm[]
+
+  @@index([ruleId])
+  @@map("conjugation_patterns")
+}
+
+model ConjugationForm {
+  id            String   @id @default(cuid())
+  patternId     String
+  person        String
+  number        String
+  form          String
+  transliteration String
+  example       String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  pattern       ConjugationPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+
+  @@index([patternId])
+  @@map("conjugation_forms")
+}
+
+model GrammarTip {
+  id        String   @id @default(cuid())
+  ruleId    String
+  tip       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  rule      GrammarRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@map("grammar_tips")
+}
+
+// Learning Path
+model Unit {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons     Lesson[]
+
+  @@index([order])
+  @@map("units")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  unitId      String
+  name        String
+  description String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  skills      Skill[]
+
+  @@index([unitId])
+  @@index([order])
+  @@map("lessons")
+}
+
+model Skill {
+  id              String   @id @default(cuid())
+  lessonId        String
+  name            String
+  description     String
+  vocabularyIds   String[] @default([])
+  grammarRuleIds  String[] @default([])
+  difficulty      Int      @default(1)
+  xpReward        Int      @default(10)
+  prerequisites   String[] @default([])
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([order])
+  @@map("skills")
+}
+
+// Spaced Repetition System
+model SRSData {
+  id            String   @id @default(cuid())
+  userId        String
+  vocabularyId  String
+  easeFactor    Float    @default(2.5)
+  interval      Int      @default(1)
+  repetitions   Int      @default(0)
+  lastReview    DateTime @default(now())
+  nextReview    DateTime @default(now())
+  quality       Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, vocabularyId])
+  @@index([userId])
+  @@index([vocabularyId])
+  @@index([nextReview])
+  @@map("srs_data")
+}
+
+// Adaptive Difficulty
+model UserPerformance {
+  id            String   @id @default(cuid())
+  userId        String
+  skillId       String
+  vocabularyId  String   @default("") // Use empty string instead of null for unique constraint
+  totalAttempts Int      @default(0)
+  correctAttempts Int     @default(0)
+  averageTime   Float    @default(0)
+  lastUpdated   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, skillId, vocabularyId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([vocabularyId])
+  @@map("user_performance")
+}
+
+// Stories
+model Story {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  difficulty    Int      @default(1)
+  category      String
+  vocabularyIds String[] @default([])
+  grammarRuleIds String[] @default([])
+  xpReward      Int      @default(20)
+  unlockLevel   Int?
+  audioUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  paragraphs    StoryParagraph[]
+  questions     StoryComprehensionQuestion[]
+  progress      StoryProgress[]
+
+  @@index([category])
+  @@index([difficulty])
+  @@map("stories")
+}
+
+model StoryParagraph {
+  id        String   @id @default(cuid())
+  storyId   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  sentences StorySentence[]
+
+  @@index([storyId])
+  @@index([order])
+  @@map("story_paragraphs")
+}
+
+model StorySentence {
+  id            String   @id @default(cuid())
+  paragraphId   String
+  gujarati      String
+  transliteration String
+  english       String
+  audioUrl      String?
+  vocabularyIds String[] @default([])
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  paragraph     StoryParagraph @relation(fields: [paragraphId], references: [id], onDelete: Cascade)
+
+  @@index([paragraphId])
+  @@index([order])
+  @@map("story_sentences")
+}
+
+model StoryComprehensionQuestion {
+  id                String   @id @default(cuid())
+  storyId           String
+  question          String
+  type              String   // 'multiple-choice' | 'true-false' | 'short-answer'
+  options           String[] @default([])
+  correctAnswer     String
+  points            Int      @default(5)
+  relatedSentenceIds String[] @default([])
+  order             Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  story             Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@index([storyId])
+  @@index([order])
+  @@map("story_comprehension_questions")
+}
+
+model StoryProgress {
+  id                String   @id @default(cuid())
+  userId            String
+  storyId           String
+  completed         Boolean  @default(false)
+  lastReadAt        DateTime @default(now())
+  comprehensionScore Float?
+  wordsLearned      String[] @default([])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  story             Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, storyId])
+  @@index([userId])
+  @@index([storyId])
+  @@map("story_progress")
+}
+
+// Achievements
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  type        String
+  icon        String
+  points      Int      @default(0)
+  requirement Int      @default(1)
+  rarity      String   @default("common")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userAchievements UserAchievement[]
+
+  @@index([type])
+  @@index([rarity])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  progress      Int?
+  createdAt     DateTime @default(now())
+
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@map("user_achievements")
+}
+
+// Daily Challenges
+model DailyChallenge {
+  id          String   @id @default(cuid())
+  date        String   @unique // YYYY-MM-DD format
+  title       String
+  description String
+  type        String
+  target      Int      @default(1)
+  reward      Int      @default(0)
+  bonusReward Int?
+  difficulty  String   @default("easy")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userProgress UserChallengeProgress[]
+
+  @@index([date])
+  @@map("daily_challenges")
+}
+
+model UserChallengeProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  challengeId   String
+  progress      Int      @default(0)
+  completed     Boolean  @default(false)
+  completedAt   DateTime?
+  bonusEarned   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  challenge     DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@index([challengeId])
+  @@map("user_challenge_progress")
+}
+

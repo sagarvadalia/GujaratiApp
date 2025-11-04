@@ -1,71 +1,68 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useEffect, useState } from 'react';
 import { Button, View } from 'tamagui';
 
 import { useTheme } from '../../hooks/useTheme';
+import { ttsService } from '../../utils/tts';
 
 interface AudioPlayerProps {
   audioUrl?: string;
   text?: string; // For TTS fallback
+  gujaratiText?: string; // Gujarati text for TTS
+  rate?: number; // Speech rate (0.1 to 10)
 }
 
-export function AudioPlayer({ audioUrl, text }: AudioPlayerProps) {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+export function AudioPlayer({ audioUrl, text, gujaratiText, rate = 0.9 }: AudioPlayerProps) {
   const { isDark } = useTheme();
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  // Create audio player with the URL (or null if no URL)
+  const player = useAudioPlayer(audioUrl ?? null);
+  const status = useAudioPlayerStatus(player);
 
-  const playSound = async () => {
-    try {
-      if (sound) {
-        await sound.unloadAsync();
+  const handlePlayPause = async () => {
+    if (audioUrl) {
+      // Use audio file if available
+      if (status.playing) {
+        player.pause();
+      } else {
+        player.play();
       }
-
-      if (audioUrl) {
-        // Play from URL
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: audioUrl },
-          { shouldPlay: true }
-        );
-        setSound(newSound);
-        setIsPlaying(true);
-
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            setIsPlaying(false);
-          }
-        });
-      } else if (text) {
-        // For future: Implement Text-to-Speech
-        // For now, we'll just show a button that doesn't do anything
-        console.info('TTS not implemented yet for:', text);
+    } else if (gujaratiText || text) {
+      // Use TTS for Gujarati text
+      if (isSpeaking) {
+        ttsService.stop();
+        setIsSpeaking(false);
+      } else {
+        try {
+          setIsSpeaking(true);
+          await ttsService.speak(gujaratiText ?? text ?? '', { rate });
+          setIsSpeaking(false);
+        } catch (error) {
+          console.error('TTS error:', error);
+          setIsSpeaking(false);
+        }
       }
-    } catch (error) {
-      console.error('Error playing sound:', error);
-      setIsPlaying(false);
     }
   };
 
-  const stopSound = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setSound(null);
-      setIsPlaying(false);
-    }
-  };
-
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (sound) {
-        void sound.unloadAsync();
+      if (audioUrl) {
+        // Audio player cleanup is handled by the hook
+      } else {
+        ttsService.stop();
       }
     };
-  }, [sound]);
+  }, [audioUrl]);
 
-  if (!audioUrl && !text) {
+  if (!audioUrl && !text && !gujaratiText) {
     return null;
   }
+
+  const isPlaying = audioUrl ? status.playing : isSpeaking;
 
   return (
     <View alignItems="center" marginTop="$2">
@@ -79,7 +76,7 @@ export function AudioPlayer({ audioUrl, text }: AudioPlayerProps) {
             color={isDark ? '$foreground' : '$foreground'}
           />
         }
-        onPress={isPlaying ? stopSound : playSound}
+        onPress={handlePlayPause}
       />
     </View>
   );

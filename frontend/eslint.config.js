@@ -8,7 +8,7 @@ module.exports = defineConfig([
   ...createBaseConfig({
     tsconfigPath: path.join(__dirname, "tsconfig.json"),
     reactNative: true,
-    excludePlugins: ["import", "react", "react-hooks", "react-native"],
+    excludePlugins: ["import", "react", "react-hooks", "react-native", "@typescript-eslint"],
   }),
   ...expoConfig,
   {

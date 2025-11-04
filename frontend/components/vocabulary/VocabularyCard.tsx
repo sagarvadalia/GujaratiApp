@@ -58,9 +58,10 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
           </Text>
 
           {/* Audio Player */}
-          {vocabulary.audioUrl && (
-            <AudioPlayer audioUrl={vocabulary.audioUrl} />
-          )}
+          <AudioPlayer
+            audioUrl={vocabulary.audioUrl}
+            gujaratiText={vocabulary.gujarati}
+          />
 
           {/* Category Badge */}
           <XStack justifyContent="center" alignItems="center" gap="$2">

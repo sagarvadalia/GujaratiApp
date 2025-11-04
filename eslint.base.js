@@ -184,27 +184,28 @@ function createBaseConfig(options = {}) {
     rules: filteredRules,
   };
 
-  const typeAwareConfigs = tsconfigPath
-    ? [
-        {
-          name: "shared/type-aware",
-          files: ["**/*.{ts,tsx}"],
-          languageOptions: {
-            parser: tsParser,
-            parserOptions: {
-              project: [tsconfigPath],
-              tsconfigRootDir,
-              ecmaVersion: 2022,
-              sourceType: "module",
+  const typeAwareConfigs =
+    tsconfigPath && !excluded.has("@typescript-eslint")
+      ? [
+          {
+            name: "shared/type-aware",
+            files: ["**/*.{ts,tsx}"],
+            languageOptions: {
+              parser: tsParser,
+              parserOptions: {
+                project: [tsconfigPath],
+                tsconfigRootDir,
+                ecmaVersion: 2022,
+                sourceType: "module",
+              },
             },
+            plugins: {
+              "@typescript-eslint": tsPlugin,
+            },
+            rules: TYPE_AWARE_RULES,
           },
-          plugins: {
-            "@typescript-eslint": tsPlugin,
-          },
-          rules: TYPE_AWARE_RULES,
-        },
-      ]
-    : [];
+        ]
+      : [];
 
   return [baseConfig, ...typeAwareConfigs];
 }

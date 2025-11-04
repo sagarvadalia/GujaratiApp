@@ -143,6 +143,21 @@ export const initialVocabulary: Vocabulary[] = [
   },
 ];
 
-export const categories = ['greetings', 'numbers', 'common'] as const;
+export const categories = [
+  'greetings',
+  'numbers',
+  'common',
+  'family',
+  'food',
+  'colors',
+  'time',
+  'body',
+  'travel',
+  'shopping',
+  'weather',
+  'hobbies',
+  'business',
+  'emergency',
+] as const;
 export type Category = typeof categories[number];
 

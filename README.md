@@ -15,6 +15,3 @@
 
 - Install workspace dependencies from the repo root with `pnpm install`.
 - The ESLint config lives in `eslint.base.js` and is composed in each package via their `eslint.config.js` files.
-
-
-

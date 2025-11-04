@@ -60,7 +60,6 @@ export function AnswerButton({
       onPress={onPress}
       disabled={showFeedback}
       icon={icon}
-      fontWeight={isSelected ? "700" : "500"}
     >
       {answer}
     </UIButton>
