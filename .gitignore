@@ -3,7 +3,7 @@ node_modules
 .expo
 .tamagui
 .vscode
-
+.pnpm-store
 
 
 

@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, YStack, Button } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { useEffect } from "react";
+import { Button, Text, View, YStack } from "tamagui";
 
 interface QuizFeedbackProps {
   isCorrect: boolean;
@@ -16,11 +16,11 @@ export function QuizFeedback({
   explanation,
   onContinue,
 }: QuizFeedbackProps) {
-  React.useEffect(() => {
+  useEffect(() => {
     if (isCorrect) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   }, [isCorrect]);
 
@@ -28,24 +28,24 @@ export function QuizFeedback({
     <View
       padding="$4"
       borderRadius="$4"
-      backgroundColor={isCorrect ? '$green2' : '$red2'}
+      backgroundColor={isCorrect ? "$green2" : "$red2"}
       borderWidth={2}
-      borderColor={isCorrect ? '$green10' : '$red10'}
+      borderColor={isCorrect ? "$green10" : "$red10"}
       marginTop="$4"
     >
       <YStack gap="$3" alignItems="center">
         <Ionicons
-          name={isCorrect ? 'checkmark-circle' : 'close-circle'}
+          name={isCorrect ? "checkmark-circle" : "close-circle"}
           size={48}
-          color={isCorrect ? '#22c55e' : '#ef4444'}
+          color={isCorrect ? "#22c55e" : "#ef4444"}
         />
 
         <Text
           fontSize="$7"
           fontWeight="700"
-          color={isCorrect ? '$green10' : '$red10'}
+          color={isCorrect ? "$green10" : "$red10"}
         >
-          {isCorrect ? 'Correct!' : 'Incorrect'}
+          {isCorrect ? "Correct!" : "Incorrect"}
         </Text>
 
         {!isCorrect && (
@@ -62,7 +62,7 @@ export function QuizFeedback({
 
         <Button
           size="$5"
-          backgroundColor={isCorrect ? '$green10' : '$red10'}
+          backgroundColor={isCorrect ? "$green10" : "$red10"}
           color="#fff"
           onPress={onContinue}
           marginTop="$2"
@@ -73,4 +73,3 @@ export function QuizFeedback({
     </View>
   );
 }
-

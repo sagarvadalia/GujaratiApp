@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { View, Text, Button, YStack, XStack, H3 } from 'tamagui';
+import React, { useState } from 'react';
+import { H3,Text, View, XStack, YStack } from 'tamagui';
+
 import { useAuthStore } from '../../store/authStore';
+import { Button as UIButton } from '../ui';
 
 export function Onboarding() {
   const router = useRouter();
@@ -55,7 +57,13 @@ export function Onboarding() {
   };
 
   return (
-    <View flex={1} bg="$background" justifyContent="center" alignItems="center" padding="$4">
+    <View
+      flex={1}
+      backgroundColor="$background"
+      justifyContent="center"
+      alignItems="center"
+      padding="$4"
+    >
       <YStack gap="$6" alignItems="center" width="100%" maxWidth={400}>
         <Text fontSize="$12" marginBottom="$2">
           {steps[currentStep].icon}
@@ -71,36 +79,25 @@ export function Onboarding() {
 
         <XStack gap="$3" marginTop="$4">
           {currentStep > 0 && (
-            <Button
-              variant="outlined"
+            <UIButton
+              variant="outline"
               onPress={() => setCurrentStep(currentStep - 1)}
             >
               Previous
-            </Button>
+            </UIButton>
           )}
-          <Button
-            onPress={handleNext}
-            flex={1}
-          >
+          <UIButton onPress={handleNext} flex={1}>
             {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
-          </Button>
+          </UIButton>
         </XStack>
 
         <XStack gap="$2" marginTop="$4">
-          <Button
-            variant="outlined"
-            size="$3"
-            onPress={handleSkip}
-          >
+          <UIButton variant="outline" size="sm" onPress={handleSkip}>
             Skip
-          </Button>
-          <Button
-            variant="outlined"
-            size="$3"
-            onPress={handleGuestMode}
-          >
+          </UIButton>
+          <UIButton variant="outline" size="sm" onPress={handleGuestMode}>
             Continue as Guest
-          </Button>
+          </UIButton>
         </XStack>
 
         <XStack gap="$2" marginTop="$4">
@@ -110,7 +107,7 @@ export function Onboarding() {
               width={8}
               height={8}
               borderRadius={4}
-              bg={index === currentStep ? '$primary' : '$muted'}
+              backgroundColor={index === currentStep ? '$primary' : '$muted'}
             />
           ))}
         </XStack>

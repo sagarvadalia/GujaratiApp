@@ -1,5 +1,5 @@
 import React from "react";
-import { GetProps, SizableText, XStack, styled } from "tamagui";
+import { type GetProps, SizableText, styled,XStack } from "tamagui";
 
 const StyledBadge = styled(XStack, {
   name: "UIBadge",
@@ -55,16 +55,22 @@ const StyledBadge = styled(XStack, {
     tone: "default",
     size: "md",
   },
-});
+} as const);
 
-type BadgeProps = GetProps<typeof StyledBadge> & {
-  tone?: "default" | "primary" | "muted" | "outline" | "destructive" | "success";
-  size?: "sm" | "md" | "lg";
+type StyledBadgeProps = GetProps<typeof StyledBadge>;
+type SizableTextProps = React.ComponentProps<typeof SizableText>;
+
+export type BadgeTone = NonNullable<StyledBadgeProps["tone"]>;
+export type BadgeSize = NonNullable<StyledBadgeProps["size"]>;
+
+type BadgeProps = Omit<StyledBadgeProps, "tone" | "size"> & {
+  tone?: BadgeTone;
+  size?: BadgeSize;
   label?: string;
 };
 
-export const Badge: React.FC<BadgeProps> = ({ label, tone = "default", children, ...props }) => {
-  const textColor =
+export const Badge: React.FC<BadgeProps> = ({ label, tone = "default", size = "md", children, ...props }) => {
+  const textColor: SizableTextProps["color"] =
     tone === "primary"
       ? "$primaryForeground"
       : tone === "destructive"
@@ -76,12 +82,8 @@ export const Badge: React.FC<BadgeProps> = ({ label, tone = "default", children,
       : "$secondaryForeground";
 
   return (
-    <StyledBadge tone={tone} {...props}>
-      <SizableText
-        size={props.size === "lg" ? "$4" : "$3"}
-        fontWeight="600"
-        color={textColor as any}
-      >
+    <StyledBadge tone={tone} size={size} {...props}>
+      <SizableText size={size === "lg" ? "$4" : "$3"} fontWeight="600" color={textColor}>
         {children ?? label}
       </SizableText>
     </StyledBadge>

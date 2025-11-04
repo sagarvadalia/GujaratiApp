@@ -1,9 +1,10 @@
-import React from 'react';
-import { Text, YStack, XStack } from 'tamagui';
-import { Vocabulary } from '../../src/types/vocabulary';
-import { AudioPlayer } from './AudioPlayer';
-import { useVocabularyStore } from '../../store/vocabularyStore';
-import { Card as UICard, Badge } from '../ui';
+import React from "react";
+import { Text, XStack, YStack } from "tamagui";
+
+import { type Vocabulary } from "../../src/types/vocabulary";
+import { useVocabularyStore } from "../../store/vocabularyStore";
+import { Badge, Card as UICard } from "../ui";
+import { AudioPlayer } from "./AudioPlayer";
 
 interface VocabularyCardProps {
   vocabulary: Vocabulary;
@@ -13,16 +14,12 @@ interface VocabularyCardProps {
 export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
   const { displayMode } = useVocabularyStore();
 
-  const shouldShowGujarati = displayMode === 'gujarati' || displayMode === 'both';
-  const shouldShowEnglish = displayMode === 'english' || displayMode === 'both';
+  const shouldShowGujarati =
+    displayMode === "gujarati" || displayMode === "both";
+  const shouldShowEnglish = displayMode === "english" || displayMode === "both";
 
   return (
-    <UICard
-      interactive
-      elevated
-      onPress={onPress}
-      marginBottom="$3"
-    >
+    <UICard interactive elevated onPress={onPress} marginBottom="$3">
       <YStack gap="$3">
         <YStack gap="$3">
           {/* Gujarati Script */}
@@ -32,7 +29,6 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
               fontWeight="600"
               color="$foreground"
               textAlign="center"
-              fontFamily="System"
             >
               {vocabulary.gujarati}
             </Text>
@@ -78,4 +74,3 @@ export function VocabularyCard({ vocabulary, onPress }: VocabularyCardProps) {
     </UICard>
   );
 }
-

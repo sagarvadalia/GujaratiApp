@@ -1,14 +1,16 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProgress } from '../src/types/progress';
+import { create } from 'zustand';
+import { createJSONStorage,persist } from 'zustand/middleware';
+
+import { type UserProgress } from '../src/types/progress';
+import type { Category } from '../src/types/vocabulary';
 
 interface ProgressState extends UserProgress {
   updateWordsLearned: (count: number) => void;
   incrementDailyProgress: () => void;
   updateStreak: () => void;
   updateAccuracy: (correct: number, total: number) => void;
-  completeCategory: (category: string) => void;
+  completeCategory: (category: Category) => void;
   resetDailyProgress: () => void;
   setDailyGoal: (goal: number) => void;
 }

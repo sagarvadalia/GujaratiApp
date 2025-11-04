@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Button } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { useEffect, useState } from 'react';
+import { Button, View } from 'tamagui';
+
 import { useTheme } from '../../hooks/useTheme';
 
 interface AudioPlayerProps {
@@ -37,7 +38,7 @@ export function AudioPlayer({ audioUrl, text }: AudioPlayerProps) {
       } else if (text) {
         // For future: Implement Text-to-Speech
         // For now, we'll just show a button that doesn't do anything
-        console.log('TTS not implemented yet for:', text);
+        console.info('TTS not implemented yet for:', text);
       }
     } catch (error) {
       console.error('Error playing sound:', error);
@@ -54,10 +55,10 @@ export function AudioPlayer({ audioUrl, text }: AudioPlayerProps) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (sound) {
-        sound.unloadAsync();
+        void sound.unloadAsync();
       }
     };
   }, [sound]);

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button as TamaguiButton, GetProps, styled } from "tamagui";
+import { Button as TamaguiButton, type GetProps, styled } from "tamagui";
 
 const StyledButton = styled(TamaguiButton, {
   name: "UIButton",
@@ -112,9 +112,17 @@ const StyledButton = styled(TamaguiButton, {
     variant: "default",
     size: "md",
   },
-});
+} as const);
 
-export type ButtonProps = GetProps<typeof StyledButton>;
+type StyledButtonProps = GetProps<typeof StyledButton>;
+
+export type ButtonVariant = NonNullable<StyledButtonProps["variant"]>;
+export type ButtonSize = NonNullable<StyledButtonProps["size"]>;
+
+export type ButtonProps = Omit<StyledButtonProps, "variant" | "size"> & {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+};
 
 export const Button = React.forwardRef<
   React.ElementRef<typeof StyledButton>,
@@ -160,13 +168,14 @@ export type ToggleButtonProps = ButtonProps & {
 export const ToggleButton = React.forwardRef<
   React.ElementRef<typeof StyledButton>,
   ToggleButtonProps
->(({ isActive, variant, ...props }, ref) => {
+>(({ isActive, variant, size, ...props }, ref) => {
   const resolvedVariant = variant ?? (isActive ? "secondary" : "outline");
 
   return (
     <StyledButton
       ref={ref}
       variant={resolvedVariant}
+      size={size}
       aria-pressed={isActive}
       {...props}
     />

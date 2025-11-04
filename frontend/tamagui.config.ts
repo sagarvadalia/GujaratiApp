@@ -1,7 +1,7 @@
 import { defaultConfig } from "@tamagui/config/v4";
 import { createTamagui } from "tamagui";
 
-import { themeRadii, themeSpacing, getSemanticTheme } from "./constants/theme";
+import { getSemanticTheme, themeRadii, themeSpacing } from "./constants/theme";
 
 type ThemeMode = "light" | "dark";
 
@@ -25,6 +25,10 @@ const mapSemanticTheme = (mode: ThemeMode) => {
 
 export const config = createTamagui({
   ...defaultConfig,
+  settings: {
+    ...defaultConfig.settings,
+    onlyAllowShorthands: false,
+  },
   themes: {
     ...defaultConfig.themes,
     light: mapSemanticTheme("light"),
@@ -47,13 +51,19 @@ export const config = createTamagui({
       lg: themeSpacing.lg,
       xl: themeSpacing.xl,
     },
+    size: {
+      ...defaultConfig.tokens.size,
+      sm: 36,
+      md: 44,
+      lg: 52,
+    },
   },
 });
 
 type OurConfig = typeof config;
 
-// Make TypeScript aware of your custom config
 declare module "tamagui" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends OurConfig {}
 }
 

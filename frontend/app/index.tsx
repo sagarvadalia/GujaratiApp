@@ -1,17 +1,26 @@
-import React from 'react';
-import { Text, ScrollView, YStack, XStack, H3, Progress, useTheme as useTamaguiTheme } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useAuthStore } from '../store/authStore';
-import { useProgressStore } from '../store/progressStore';
-import { useAuth } from '@clerk/clerk-expo';
-import { Onboarding } from '../components/auth/Onboarding';
-import { Button as UIButton, Card as UICard, Badge } from '../components/ui';
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import {
+  H3,
+  Progress,
+  ScrollView,
+  Text,
+  useTheme as useTamaguiTheme,
+  XStack,
+  YStack,
+} from "tamagui";
+
+import { Onboarding } from "../components/auth/Onboarding";
+import { Badge, Button as UIButton, Card as UICard } from "../components/ui";
+import { useAuthStore } from "../store/authStore";
+import { useProgressStore } from "../store/progressStore";
 
 export default function Index() {
   const router = useRouter();
   const { hasCompletedOnboarding } = useAuthStore();
-  const { user, isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const {
     currentStreak,
     dailyGoal,
@@ -27,8 +36,12 @@ export default function Index() {
     return <Onboarding />;
   }
 
-  const progressPercentage = dailyGoal > 0 ? (dailyProgress / dailyGoal) * 100 : 0;
-  const userName = user?.firstName || user?.emailAddresses[0]?.emailAddress?.split('@')[0] || 'Learner';
+  const progressPercentage =
+    dailyGoal > 0 ? (dailyProgress / dailyGoal) * 100 : 0;
+  const userName =
+    user?.firstName ??
+    user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ??
+    "Learner";
   const isGoalComplete = progressPercentage >= 100;
 
   // Motivational messages based on progress
@@ -52,15 +65,25 @@ export default function Index() {
   };
 
   return (
-    <ScrollView flex={1} bg="$background" padding="$4">
+    <ScrollView flex={1} backgroundColor="$background" padding="$4">
       <YStack gap="$4" paddingTop="$2">
         {/* Hero Section */}
         <UICard tone="subtle" elevated>
           <YStack gap="$2" alignItems="center">
-            <Text fontSize="$10" fontWeight="700" color="$primary" textAlign="center">
+            <Text
+              fontSize="$10"
+              fontWeight="700"
+              color="$primary"
+              textAlign="center"
+            >
               નમસ્તે {userName}! 👋
             </Text>
-            <Text fontSize="$5" color="$foreground" opacity={0.8} textAlign="center">
+            <Text
+              fontSize="$5"
+              color="$foreground"
+              opacity={0.8}
+              textAlign="center"
+            >
               Welcome to Gujarati Learning
             </Text>
             <Text fontSize="$4" color="$mutedForeground" textAlign="center">
@@ -79,12 +102,25 @@ export default function Index() {
                   {dailyProgress} / {dailyGoal}
                 </Text>
               </XStack>
-              <Progress value={progressPercentage} max={100} backgroundColor="$muted" height={12} borderRadius="$2">
-                <Progress.Indicator animation="bouncy" backgroundColor="$primary" />
+              <Progress
+                value={progressPercentage}
+                max={100}
+                backgroundColor="$muted"
+                height={12}
+                borderRadius="$2"
+              >
+                <Progress.Indicator
+                  animation="bouncy"
+                  backgroundColor="$primary"
+                />
               </Progress>
               {isGoalComplete && (
                 <XStack alignItems="center" gap="$2" justifyContent="center">
-                  <Ionicons name="trophy" size={24} color={theme.accent?.val || '#6366F1'} />
+                  <Ionicons
+                    name="trophy"
+                    size={24}
+                    color={theme.accent?.val ?? "#6366F1"}
+                  />
                   <Text fontSize="$5" fontWeight="600" color="$accent">
                     Goal Complete! 🎉
                   </Text>
@@ -99,13 +135,21 @@ export default function Index() {
           <UICard tone="subtle" elevated>
             <XStack justifyContent="space-between" alignItems="center">
               <YStack gap="$1">
-                <Text fontSize="$4" color="$mutedForeground">Current Streak</Text>
+                <Text fontSize="$4" color="$mutedForeground">
+                  Current Streak
+                </Text>
                 <XStack alignItems="center" gap="$2">
-                  <Ionicons name="flame" size={32} color={theme.primary?.val || '#2563EB'} />
+                  <Ionicons
+                    name="flame"
+                    size={32}
+                    color={theme.primary?.val ?? "#2563EB"}
+                  />
                   <Text fontSize="$8" fontWeight="700" color="$primary">
                     {currentStreak}
                   </Text>
-                  <Text fontSize="$5" color="$foreground">days 🔥</Text>
+                  <Text fontSize="$5" color="$foreground">
+                    days 🔥
+                  </Text>
                 </XStack>
               </YStack>
             </XStack>
@@ -117,9 +161,13 @@ export default function Index() {
           size="lg"
           variant="default"
           block
-          onPress={() => router.push('/learn')}
+          onPress={() => router.push("/learn")}
           icon={
-            <Ionicons name="play-circle" size={26} color={theme.primaryForeground?.val || '#F8FAFC'} />
+            <Ionicons
+              name="play-circle"
+              size={26}
+              color={theme.primaryForeground?.val ?? "#F8FAFC"}
+            />
           }
         >
           Continue Learning
@@ -135,9 +183,13 @@ export default function Index() {
                 minWidth="45%"
                 size="md"
                 variant="secondary"
-                onPress={() => router.push('/vocabulary')}
+                onPress={() => router.push("/vocabulary")}
                 icon={
-                  <Ionicons name="library" size={22} color={theme.secondaryForeground?.val || '#0F172A'} />
+                  <Ionicons
+                    name="library"
+                    size={22}
+                    color={theme.secondaryForeground?.val ?? "#0F172A"}
+                  />
                 }
               >
                 Vocabulary
@@ -147,9 +199,13 @@ export default function Index() {
                 minWidth="45%"
                 size="md"
                 variant="accent"
-                onPress={() => router.push('/learn')}
+                onPress={() => router.push("/learn")}
                 icon={
-                  <Ionicons name="flash" size={22} color={theme.accentForeground?.val || '#0F172A'} />
+                  <Ionicons
+                    name="flash"
+                    size={22}
+                    color={theme.accentForeground?.val ?? "#0F172A"}
+                  />
                 }
               >
                 Practice
@@ -158,14 +214,22 @@ export default function Index() {
                 flex={1}
                 minWidth="45%"
                 size="md"
-                variant={isSignedIn ? 'accent' : 'subtle'}
-                onPress={() => isSignedIn ? router.push('/progress') : router.push('/sign-in')}
+                variant={isSignedIn ? "accent" : "subtle"}
+                onPress={() =>
+                  isSignedIn
+                    ? router.push("/progress")
+                    : router.push("/sign-in")
+                }
                 disabled={!isSignedIn}
                 icon={
                   <Ionicons
                     name="stats-chart"
                     size={22}
-                    color={isSignedIn ? theme.accentForeground?.val || '#0F172A' : theme.mutedForeground?.val || '#94A3B8'}
+                    color={
+                      isSignedIn
+                        ? theme.accentForeground?.val ?? "#0F172A"
+                        : theme.mutedForeground?.val ?? "#94A3B8"
+                    }
                   />
                 }
               >
@@ -176,9 +240,13 @@ export default function Index() {
                 minWidth="45%"
                 size="md"
                 variant="accent"
-                onPress={() => router.push('/vocabulary')}
+                onPress={() => router.push("/vocabulary")}
                 icon={
-                  <Ionicons name="refresh" size={22} color={theme.accentForeground?.val || '#0F172A'} />
+                  <Ionicons
+                    name="refresh"
+                    size={22}
+                    color={theme.accentForeground?.val ?? "#0F172A"}
+                  />
                 }
               >
                 Review
@@ -195,11 +263,19 @@ export default function Index() {
               <XStack gap="$3" flexWrap="wrap">
                 <UICard tone="subtle" elevated flex={1} minWidth="45%">
                   <YStack gap="$2" alignItems="center">
-                    <Ionicons name="book" size={28} color={theme.primary?.val || '#2563EB'} />
+                    <Ionicons
+                      name="book"
+                      size={28}
+                      color={theme.primary?.val ?? "#2563EB"}
+                    />
                     <Text fontSize="$8" fontWeight="700" color="$primary">
                       {wordsLearned}
                     </Text>
-                    <Text fontSize="$3" color="$mutedForeground" textAlign="center">
+                    <Text
+                      fontSize="$3"
+                      color="$mutedForeground"
+                      textAlign="center"
+                    >
                       Words Learned
                     </Text>
                   </YStack>
@@ -207,11 +283,19 @@ export default function Index() {
 
                 <UICard tone="subtle" elevated flex={1} minWidth="45%">
                   <YStack gap="$2" alignItems="center">
-                    <Ionicons name="stats-chart" size={28} color={theme.secondary?.val || '#F1F5F9'} />
+                    <Ionicons
+                      name="stats-chart"
+                      size={28}
+                      color={theme.secondary?.val ?? "#F1F5F9"}
+                    />
                     <Text fontSize="$8" fontWeight="700" color="$secondary">
                       {accuracyRate.toFixed(1)}%
                     </Text>
-                    <Text fontSize="$3" color="$mutedForeground" textAlign="center">
+                    <Text
+                      fontSize="$3"
+                      color="$mutedForeground"
+                      textAlign="center"
+                    >
                       Accuracy Rate
                     </Text>
                   </YStack>
@@ -228,7 +312,12 @@ export default function Index() {
               <H3 color="$foreground">Completed Categories</H3>
               <XStack gap="$2" flexWrap="wrap">
                 {completedCategories.map((category) => (
-                  <Badge key={category} tone="muted" size="sm" label={`${category} ✓`} />
+                  <Badge
+                    key={category}
+                    tone="muted"
+                    size="sm"
+                    label={`${category} ✓`}
+                  />
                 ))}
               </XStack>
             </YStack>

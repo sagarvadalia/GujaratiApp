@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Text, Button, YStack, XStack, Card, H3, Progress, Sheet } from 'tamagui';
-import { StreakDisplay } from '../../components/progress/StreakDisplay';
-import { ProgressStats } from '../../components/progress/ProgressStats';
-import { useAuthStore } from '../../store/authStore';
-import { useRouter } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Button, Card, H3, Progress, ScrollView, Sheet,Text, View, XStack, YStack } from 'tamagui';
+
+import { ProgressStats } from '../../components/progress/ProgressStats';
+import { StreakDisplay } from '../../components/progress/StreakDisplay';
+import { useAuthStore } from '../../store/authStore';
 
 export default function ProgressScreen() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function ProgressScreen() {
   // Show skeleton UI with modal for guest users
   if (isGuest && !isSignedIn) {
     return (
-      <View flex={1} bg="$background" position="relative">
+      <View flex={1} backgroundColor="$background" position="relative">
         {/* Skeleton UI - Greyed out version of progress page */}
         <ScrollView flex={1} padding="$4" opacity={0.4}>
           <View gap="$4" paddingTop="$2">
@@ -94,7 +95,7 @@ export default function ProgressScreen() {
             backgroundColor="rgba(0,0,0,0.7)"
           />
           <Sheet.Handle />
-          <Sheet.Frame bg="$background" padding="$4">
+          <Sheet.Frame backgroundColor="$background" padding="$4">
             <YStack gap="$4" alignItems="center" justifyContent="center" paddingTop="$4">
               <Ionicons name="lock-closed" size={64} color="$primary" />
               <Text fontSize="$8" fontWeight="700" color="$foreground" textAlign="center">
@@ -176,7 +177,7 @@ export default function ProgressScreen() {
   }
 
   return (
-    <ScrollView flex={1} bg="$background" padding="$4">
+    <ScrollView flex={1} backgroundColor="$background" padding="$4">
       <View gap="$4" paddingTop="$2">
         <StreakDisplay />
         <ProgressStats />

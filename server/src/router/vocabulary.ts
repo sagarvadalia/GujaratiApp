@@ -1,7 +1,8 @@
-import { router, publicProcedure } from './_app';
 import { z } from 'zod';
-import { initialVocabulary, Vocabulary, categories } from '../types/vocabulary';
+
 import { TranslationService } from '../services/translation';
+import { categories, initialVocabulary, type Vocabulary } from '../types/vocabulary';
+import { publicProcedure, router } from './_app';
 
 // In-memory storage for Phase 1 (will be replaced with database later)
 let vocabularyData: Vocabulary[] = [...initialVocabulary];

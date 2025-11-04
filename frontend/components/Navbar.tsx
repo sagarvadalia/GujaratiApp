@@ -1,66 +1,107 @@
-import React, { useState } from 'react'
-import { View, Text, Sheet, useTheme as useTamaguiTheme, XStack, YStack, Popover } from 'tamagui'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Ionicons } from '@expo/vector-icons'
-import { useTheme } from '../hooks/useTheme'
-import { useRouter } from 'expo-router'
-import { useAuthStore } from '../store/authStore'
-import { useAuth } from '@clerk/clerk-expo'
-import { useVocabularyStore, DisplayMode } from '../store/vocabularyStore'
-import { Button as UIButton, IconButton, ToggleButton } from './ui'
+import { useAuth } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+import { type Href, useRouter } from "expo-router";
+import { type ComponentProps, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  Popover,
+  Sheet,
+  Text,
+  useTheme as useTamaguiTheme,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
+
+import { useTheme } from "../hooks/useTheme";
+import { useAuthStore } from "../store/authStore";
+import { type DisplayMode, useVocabularyStore } from "../store/vocabularyStore";
+import { Button as UIButton, IconButton, ToggleButton } from "./ui";
+
+type IoniconName = ComponentProps<typeof Ionicons>["name"];
+
+type MenuItem = {
+  label: string;
+  route: Href;
+  icon: IoniconName;
+  requiresAuth: boolean;
+};
+
+type DisplayModeOption = {
+  mode: DisplayMode;
+  label: string;
+  icon: IoniconName;
+};
 
 interface NavbarProps {
-  title?: string
+  title?: string;
 }
 
-export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
-  const insets = useSafeAreaInsets()
-  const { isDark, toggleTheme } = useTheme()
-  const theme = useTamaguiTheme()
-  const router = useRouter()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [displayModeOpen, setDisplayModeOpen] = useState(false)
-  const { isGuest } = useAuthStore()
-  const { isSignedIn } = useAuth()
-  const { displayMode, setDisplayMode } = useVocabularyStore()
+export function Navbar({ title = "Gujarati Learning" }: NavbarProps) {
+  const insets = useSafeAreaInsets();
+  const { isDark, toggleTheme } = useTheme();
+  const theme = useTamaguiTheme();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [displayModeOpen, setDisplayModeOpen] = useState(false);
+  const { isGuest } = useAuthStore();
+  const { isSignedIn } = useAuth();
+  const { displayMode, setDisplayMode } = useVocabularyStore();
 
   const menuItems = [
-    { label: 'Home', route: '/', icon: 'home', requiresAuth: false },
-    { label: 'Lessons', route: '/learn', icon: 'book', requiresAuth: false },
-    { label: 'Vocabulary', route: '/vocabulary', icon: 'library', requiresAuth: false },
-    { label: 'Practice', route: '/learn', icon: 'flash', requiresAuth: false },
-    { label: 'Progress', route: '/progress', icon: 'stats-chart', requiresAuth: true },
-    { label: 'Settings', route: '/settings', icon: 'settings', requiresAuth: false },
-  ]
+    { label: "Home", route: "/", icon: "home", requiresAuth: false },
+    { label: "Lessons", route: "/learn", icon: "book", requiresAuth: false },
+    {
+      label: "Vocabulary",
+      route: "/vocabulary",
+      icon: "library",
+      requiresAuth: false,
+    },
+    { label: "Practice", route: "/learn", icon: "flash", requiresAuth: false },
+    {
+      label: "Progress",
+      route: "/progress",
+      icon: "stats-chart",
+      requiresAuth: true,
+    },
+    {
+      label: "Settings",
+      route: "/settings",
+      icon: "settings",
+      requiresAuth: false,
+    },
+  ] satisfies MenuItem[];
 
-  const handleNavigation = (route: string, requiresAuth: boolean) => {
-    setMenuOpen(false)
-    
+  const handleNavigation = (route: Href, requiresAuth: boolean) => {
+    setMenuOpen(false);
+
     // Check if route requires authentication
     if (requiresAuth && isGuest && !isSignedIn) {
-      router.push('/sign-in')
-      return
+      router.push("/sign-in");
+      return;
     }
-    
-    if (route === '/') {
-      router.replace('/')
+
+    if (route === "/") {
+      router.replace("/");
     } else {
-      router.push(route as any)
+      router.push(route);
     }
-  }
+  };
 
-  const displayModeOptions: { mode: DisplayMode; label: string; icon: string }[] = [
-    { mode: 'gujarati', label: 'Gujarati', icon: 'language' },
-    { mode: 'english', label: 'English', icon: 'text' },
-    { mode: 'both', label: 'Both', icon: 'layers' },
-  ]
+  const displayModeOptions = [
+    { mode: "gujarati", label: "Gujarati", icon: "globe" },
+    { mode: "english", label: "English", icon: "text" },
+    { mode: "both", label: "Both", icon: "layers" },
+  ] satisfies DisplayModeOption[];
 
-  const currentDisplayMode = displayModeOptions.find((opt) => opt.mode === displayMode) || displayModeOptions[2]
+  const currentDisplayMode =
+    displayModeOptions.find((opt) => opt.mode === displayMode) ??
+    displayModeOptions[2];
 
   return (
     <>
       <View
-        bg="$card"
+        backgroundColor="$card"
         borderBottomWidth={1}
         borderBottomColor="$border"
         paddingTop={insets.top}
@@ -69,11 +110,11 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
         flexDirection="row"
         alignItems="center"
         justifyContent="space-between"
-        elevation={2}
         shadowColor="$shadowColor"
         shadowOffset={{ width: 0, height: 2 }}
         shadowOpacity={0.1}
         shadowRadius={4}
+        style={{ elevation: 2 }}
       >
         {/* Menu Button */}
         <IconButton
@@ -83,7 +124,7 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
             <Ionicons
               name="menu"
               size={22}
-              color={theme.color?.val || '#000'}
+              color={theme.color?.val ?? "#000"}
             />
           }
         />
@@ -112,17 +153,17 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
               >
                 <XStack alignItems="center" gap="$1">
                   <Ionicons
-                    name={currentDisplayMode.icon as any}
+                    name={currentDisplayMode.icon}
                     size={18}
-                    color={theme.color?.val || '#000'}
+                    color={theme.color?.val ?? "#000"}
                   />
                   <Text fontSize="$3" color="$color" fontWeight="600">
                     {currentDisplayMode.label}
                   </Text>
                   <Ionicons
-                    name={displayModeOpen ? 'chevron-up' : 'chevron-down'}
+                    name={displayModeOpen ? "chevron-up" : "chevron-down"}
                     size={14}
-                    color={theme.color?.val || '#000'}
+                    color={theme.color?.val ?? "#000"}
                   />
                 </XStack>
               </UIButton>
@@ -132,7 +173,7 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
               borderColor="$border"
               borderRadius="$6"
               padding="$2"
-              bg="$card"
+              backgroundColor="$card"
               shadowColor="$shadowColor"
               shadowOffset={{ width: 0, height: 2 }}
               shadowOpacity={0.1}
@@ -140,36 +181,48 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
             >
               <YStack gap="$1">
                 {displayModeOptions.map((option) => {
-                  const isSelected = displayMode === option.mode
+                  const isSelected = displayMode === option.mode;
                   return (
                     <ToggleButton
                       key={option.mode}
                       size="sm"
                       isActive={isSelected}
-                      variant={isSelected ? 'secondary' : 'ghost'}
+                      variant={isSelected ? "secondary" : "ghost"}
                       justifyContent="flex-start"
                       paddingHorizontal="$3"
                       paddingVertical="$2"
                       onPress={() => {
-                        setDisplayMode(option.mode)
-                        setDisplayModeOpen(false)
+                        setDisplayMode(option.mode);
+                        setDisplayModeOpen(false);
                       }}
                     >
                       <XStack alignItems="center" gap="$2">
                         <Ionicons
-                          name={option.icon as any}
+                          name={option.icon}
                           size={18}
-                          color={isSelected ? theme.secondaryForeground?.val || '#fff' : theme.color?.val || '#000'}
+                          color={
+                            isSelected
+                              ? theme.secondaryForeground?.val ?? "#fff"
+                              : theme.color?.val ?? "#000"
+                          }
                         />
-                        <Text fontSize="$4" color={isSelected ? '$secondaryForeground' : '$color'} fontWeight={isSelected ? '600' : '500'}>
+                        <Text
+                          fontSize="$4"
+                          color={isSelected ? "$secondaryForeground" : "$color"}
+                          fontWeight={isSelected ? "600" : "500"}
+                        >
                           {option.label}
                         </Text>
                         {isSelected && (
-                          <Ionicons name="checkmark" size={16} color={theme.secondaryForeground?.val || '#fff'} />
+                          <Ionicons
+                            name="checkmark"
+                            size={16}
+                            color={theme.secondaryForeground?.val ?? "#fff"}
+                          />
                         )}
                       </XStack>
                     </ToggleButton>
-                  )
+                  );
                 })}
               </YStack>
             </Popover.Content>
@@ -179,9 +232,9 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
             onPress={toggleTheme}
             icon={
               <Ionicons
-                name={isDark ? 'sunny' : 'moon'}
+                name={isDark ? "sunny" : "moon"}
                 size={22}
-                color={theme.color?.val || '#000'}
+                color={theme.color?.val ?? "#000"}
               />
             }
           />
@@ -193,7 +246,7 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
         modal
         open={menuOpen}
         onOpenChange={setMenuOpen}
-        snapPoints={[85]}
+        snapPoints={["85%"]}
         dismissOnSnapToBottom
         zIndex={100_000}
         animation="medium"
@@ -204,40 +257,43 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
           exitStyle={{ opacity: 0 }}
         />
         <Sheet.Handle />
-        <Sheet.Frame
-          bg="$card"
-          padding="$5"
-          paddingTop={insets.top}
-        >
+        <Sheet.Frame backgroundColor="$card" padding="$5" paddingTop={insets.top}>
           <View gap="$3">
-            <Text fontSize="$8" fontWeight="700" color="$color" marginBottom="$2">
+            <Text
+              fontSize="$8"
+              fontWeight="700"
+              color="$color"
+              marginBottom="$2"
+            >
               Menu
             </Text>
             {menuItems.map((item) => {
               const isDisabled = item.requiresAuth && isGuest && !isSignedIn;
               return (
                 <UIButton
-                  key={item.route}
+                  key={item.label}
                   variant="ghost"
                   size="lg"
                   justifyContent="flex-start"
                   borderRadius="$6"
                   paddingHorizontal="$4"
                   paddingVertical="$3"
-                  onPress={() => handleNavigation(item.route, item.requiresAuth)}
+                  onPress={() =>
+                    handleNavigation(item.route, item.requiresAuth)
+                  }
                   disabled={isDisabled}
                   opacity={isDisabled ? 0.5 : 1}
                   icon={
                     <Ionicons
-                      name={item.icon as any}
+                      name={item.icon}
                       size={22}
-                      color={theme.color?.val || '#000'}
+                      color={theme.color?.val ?? "#000"}
                     />
                   }
                 >
                   <Text fontSize="$5" color="$color" marginLeft="$3">
                     {item.label}
-                    {isDisabled && ' (Sign In Required)'}
+                    {isDisabled && " (Sign In Required)"}
                   </Text>
                 </UIButton>
               );
@@ -246,5 +302,5 @@ export function Navbar({ title = 'Gujarati Learning' }: NavbarProps) {
         </Sheet.Frame>
       </Sheet>
     </>
-  )
+  );
 }

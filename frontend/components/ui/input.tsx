@@ -1,5 +1,5 @@
 import React from "react";
-import { GetProps, Input as TamaguiInput, styled } from "tamagui";
+import { type GetProps, Input as TamaguiInput, styled } from "tamagui";
 
 const StyledInput = styled(TamaguiInput, {
   name: "UIInput",
@@ -52,13 +52,28 @@ const StyledInput = styled(TamaguiInput, {
     size: "md",
     tone: "default",
   },
-});
+} as const);
 
-export type InputProps = GetProps<typeof StyledInput>;
+type StyledInputProps = GetProps<typeof StyledInput>;
+
+export type InputSize = NonNullable<StyledInputProps["size"]>;
+export type InputTone = NonNullable<StyledInputProps["tone"]>;
+
+export type InputProps = Omit<StyledInputProps, "size" | "tone"> & {
+  size?: InputSize;
+  tone?: InputTone;
+};
 
 export const Input = React.forwardRef<React.ElementRef<typeof StyledInput>, InputProps>(
   ({ size = "md", tone = "default", ...props }, ref) => {
-    return <StyledInput ref={ref} size={size} tone={tone} {...props} />;
+    return (
+      <StyledInput
+        ref={ref}
+        size={size}
+        tone={tone}
+        {...props}
+      />
+    );
   }
 );
 

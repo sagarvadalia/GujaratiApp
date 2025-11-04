@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, YStack } from 'tamagui';
-import { QuizQuestion } from '../../src/types/quiz';
+
+import { type QuizQuestion } from '../../src/types/quiz';
 import { Card as UICard } from '../ui/card';
 
 interface QuestionCardProps {

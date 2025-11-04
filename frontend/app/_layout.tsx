@@ -1,13 +1,14 @@
+import { ClerkProvider } from "@clerk/clerk-expo";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryProvider } from "../providers/QueryProvider";
-import { TRPCProvider } from "../providers/TRPCProvider";
-import { TamaguiProvider } from "../providers/TamaguiProvider";
-import { ClerkProvider } from "@clerk/clerk-expo";
-import { Navbar } from "../components/Navbar";
 import { View } from "tamagui";
 
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || "";
+import { Navbar } from "../components/Navbar";
+import { QueryProvider } from "../providers/QueryProvider";
+import { TamaguiProvider } from "../providers/TamaguiProvider";
+import { TRPCProvider } from "../providers/TRPCProvider";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
 
 export default function RootLayout() {
   return (
@@ -16,7 +17,7 @@ export default function RootLayout() {
         <QueryProvider>
           <TRPCProvider>
             <SafeAreaProvider>
-              <View flex={1} bg="$background">
+              <View flex={1} backgroundColor="$background">
                 <Navbar />
                 <Stack
                   screenOptions={{

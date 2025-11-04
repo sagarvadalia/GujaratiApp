@@ -2,7 +2,7 @@ export class TranslationService {
   private apiKey: string;
 
   constructor() {
-    this.apiKey = process.env.GOOGLE_CLOUD_API_KEY || "";
+    this.apiKey = process.env.GOOGLE_CLOUD_API_KEY ?? "";
   }
 
   async translateText(

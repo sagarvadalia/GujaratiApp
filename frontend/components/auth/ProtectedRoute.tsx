@@ -1,20 +1,21 @@
-import React from 'react';
 import { useAuth } from '@clerk/clerk-expo';
 import { useRouter, useSegments } from 'expo-router';
-import { View, Text, Spinner } from 'tamagui';
+import { type ReactNode, useEffect } from 'react';
+import { Spinner, View } from 'tamagui';
+
 import { useAuthStore } from '../../store/authStore';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isLoaded, isSignedIn, userId } = useAuth();
   const router = useRouter();
   const segments = useSegments();
-  const { isGuest, setUser, setGuestMode } = useAuthStore();
+  const { isGuest, setUser } = useAuthStore();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoaded) return;
 
     const inAuthGroup = segments[0] === '(auth)';
@@ -28,11 +29,16 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         id: userId,
       });
     }
-  }, [isLoaded, isSignedIn, userId, isGuest, segments]);
+  }, [isGuest, isLoaded, isSignedIn, router, segments, setUser, userId]);
 
   if (!isLoaded) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center" bg="$background">
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+      >
         <Spinner size="large" />
       </View>
     );
@@ -45,7 +51,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show loading while checking auth
   return (
-    <View flex={1} justifyContent="center" alignItems="center" bg="$background">
+    <View
+      flex={1}
+      justifyContent="center"
+      alignItems="center"
+      backgroundColor="$background"
+    >
       <Spinner size="large" />
     </View>
   );

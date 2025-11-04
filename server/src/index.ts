@@ -1,10 +1,11 @@
-import express from 'express';
-import cors from 'cors';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import cors from 'cors';
+import express from 'express';
+
 import { appRouter } from './router';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT ?? 3001;
 
 // Middleware
 app.use(cors({
@@ -14,7 +15,7 @@ app.use(express.json());
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.info(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
@@ -33,7 +34,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 tRPC endpoint: http://localhost:${PORT}/trpc`);
+  console.info(`🚀 Server running on http://localhost:${PORT}`);
+  console.info(`📡 tRPC endpoint: http://localhost:${PORT}/trpc`);
 });
 

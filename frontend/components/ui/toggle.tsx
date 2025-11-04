@@ -1,8 +1,8 @@
-import React from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { SizableText, XStack, useTheme } from "tamagui";
+import React from "react";
+import { SizableText, useTheme, XStack } from "tamagui";
 
-import { ToggleButton, ToggleButtonProps } from "./button";
+import { ToggleButton, type ToggleButtonProps } from "./button";
 
 export type ToggleOption<T extends string> = {
   value: T;
@@ -39,7 +39,9 @@ export function ToggleGroup<T extends string>({
     >
       {options.map((option) => {
         const isActive = option.value === value;
-        const iconColor = isActive ? theme.primaryForeground.val : theme.color.val;
+        const baseColor = theme.color?.val ?? "#0F172A";
+        const activeColor = theme.primaryForeground?.val ?? baseColor;
+        const iconColor = isActive ? activeColor : baseColor;
 
         return (
           <ToggleButton

@@ -1,7 +1,8 @@
-import { router, publicProcedure } from './_app';
 import { z } from 'zod';
-import { vocabularyRouter } from './vocabulary';
+
+import { publicProcedure, router } from './_app';
 import { progressRouter } from './progress';
+import { vocabularyRouter } from './vocabulary';
 
 export const appRouter = router({
   hello: publicProcedure

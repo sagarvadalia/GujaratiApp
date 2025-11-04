@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, Card, YStack, XStack, H3, Progress } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Card, H3,Text, YStack } from 'tamagui';
+
 import { useProgressStore } from '../../store/progressStore';
 
 export function StreakDisplay() {

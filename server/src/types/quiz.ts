@@ -11,7 +11,7 @@ export interface QuizSession {
   id: string;
   questions: QuizQuestion[];
   currentQuestionIndex: number;
-  answers: { questionId: string; answer: string; isCorrect: boolean }[];
+  answers: Array<{ questionId: string; answer: string; isCorrect: boolean }>;
   score: number;
   completed: boolean;
 }

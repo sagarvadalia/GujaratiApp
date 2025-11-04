@@ -1,3 +1,5 @@
+import type { Category } from './vocabulary';
+
 export interface UserProgress {
   userId: string;
   wordsLearned: number;
@@ -7,6 +9,6 @@ export interface UserProgress {
   dailyProgress: number;
   accuracyRate: number;
   lastActiveDate: Date;
-  completedCategories: string[];
+  completedCategories: Category[];
 }
 

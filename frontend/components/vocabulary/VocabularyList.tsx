@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, XStack, YStack } from 'tamagui';
-import { VocabularyCard } from './VocabularyCard';
-import { Vocabulary } from '../../src/types/vocabulary';
+import { ScrollView, Text, View, XStack, YStack } from 'tamagui';
+
+import { categories as vocabularyCategories, type Category, type Vocabulary } from '../../src/types/vocabulary';
+import { type DisplayMode, useVocabularyStore } from '../../store/vocabularyStore';
 import { trpc } from '../../utils/trpc';
-import { useVocabularyStore, DisplayMode } from '../../store/vocabularyStore';
-import { ToggleGroup, ToggleButton } from '../ui';
+import { ToggleButton, ToggleGroup, type ToggleOption } from '../ui';
+import { VocabularyCard } from './VocabularyCard';
 
 interface VocabularyListProps {
-  category?: string;
+  category?: Category;
 }
 
+type CategoryFilterValue = Category | 'all';
+
+const categoryFilters: readonly { value: CategoryFilterValue; label: string }[] = [
+  { value: 'all', label: 'all' },
+  ...vocabularyCategories.map((value) => ({ value, label: value })),
+];
+
 export function VocabularyList({ category }: VocabularyListProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(category);
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(category);
   const { displayMode, setDisplayMode } = useVocabularyStore();
 
   const { data: vocabulary, isLoading } = selectedCategory
-    ? trpc.vocabulary.getByCategory.useQuery({ category: selectedCategory as any })
+    ? trpc.vocabulary.getByCategory.useQuery({ category: selectedCategory })
     : trpc.vocabulary.getAll.useQuery();
 
-  const categories = ['all', 'greetings', 'numbers', 'common'] as const;
-  const displayModes: { mode: DisplayMode; label: string; icon?: string }[] = [
-    { mode: 'gujarati', label: 'Gujarati', icon: 'language' },
-    { mode: 'english', label: 'English', icon: 'text' },
-    { mode: 'both', label: 'Both', icon: 'layers' },
+  const displayModeOptions: ToggleOption<DisplayMode>[] = [
+    { value: 'gujarati', label: 'Gujarati', icon: 'globe' },
+    { value: 'english', label: 'English', icon: 'text' },
+    { value: 'both', label: 'Both', icon: 'layers' },
   ];
 
   if (isLoading) {
@@ -34,7 +41,7 @@ export function VocabularyList({ category }: VocabularyListProps) {
   }
 
   return (
-    <View flex={1} bg="$background">
+    <View flex={1} backgroundColor="$background">
       {/* Display Mode Toggle */}
       <View padding="$4" paddingBottom="$2">
         <YStack gap="$2">
@@ -45,11 +52,7 @@ export function VocabularyList({ category }: VocabularyListProps) {
             stretch
             value={displayMode}
             onChange={(value) => setDisplayMode(value)}
-            options={displayModes.map((option) => ({
-              value: option.mode,
-              label: option.label,
-              icon: option.icon,
-            }))}
+            options={displayModeOptions}
           />
         </YStack>
       </View>
@@ -60,26 +63,27 @@ export function VocabularyList({ category }: VocabularyListProps) {
         showsHorizontalScrollIndicator={false}
         paddingVertical="$3"
         paddingHorizontal="$4"
-        bg="$background"
+        backgroundColor="$background"
         marginBottom="$2"
       >
         <XStack gap="$2">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat || (cat === 'all' && !selectedCategory);
+          {categoryFilters.map(({ value, label }) => {
+            const isAll = value === 'all';
+            const isSelected = isAll ? !selectedCategory : selectedCategory === value;
             return (
               <ToggleButton
-                key={cat}
+                key={value}
                 size="sm"
                 isActive={isSelected}
                 variant={isSelected ? 'secondary' : 'ghost'}
-                onPress={() => setSelectedCategory(cat === 'all' ? undefined : cat)}
+                onPress={() => setSelectedCategory(isAll ? undefined : value)}
               >
                 <Text
                   textTransform="capitalize"
                   fontWeight={isSelected ? '600' : '500'}
                   color={isSelected ? '$secondaryForeground' : '$color'}
                 >
-                  {cat}
+                  {label}
                 </Text>
               </ToggleButton>
             );

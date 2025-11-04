@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { QuizQuestion, QuizSession } from '../src/types/quiz';
+
+import { type QuizQuestion, type QuizSession } from '../src/types/quiz';
 
 interface QuizState {
   currentSession: QuizSession | null;

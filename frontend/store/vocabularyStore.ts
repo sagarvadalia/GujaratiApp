@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { Vocabulary } from '../src/types/vocabulary';
+
+import { type Vocabulary } from '../src/types/vocabulary';
 
 export type DisplayMode = 'gujarati' | 'english' | 'both';
 

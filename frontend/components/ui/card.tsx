@@ -1,5 +1,5 @@
 import React from "react";
-import { Card as TamaguiCard, GetProps, styled } from "tamagui";
+import { Card as TamaguiCard, type GetProps, styled } from "tamagui";
 
 const StyledCard = styled(TamaguiCard, {
   name: "UICard",
@@ -44,13 +44,25 @@ const StyledCard = styled(TamaguiCard, {
   defaultVariants: {
     tone: "default",
   },
-});
+} as const);
 
-export type CardProps = GetProps<typeof StyledCard>;
+type StyledCardProps = GetProps<typeof StyledCard>;
+
+export type CardTone = NonNullable<StyledCardProps["tone"]>;
+
+export type CardProps = Omit<StyledCardProps, "tone"> & {
+  tone?: CardTone;
+};
 
 export const Card = React.forwardRef<React.ElementRef<typeof StyledCard>, CardProps>(
   ({ tone = "default", ...props }, ref) => {
-    return <StyledCard ref={ref} tone={tone} {...props} />;
+    return (
+      <StyledCard
+        ref={ref}
+        tone={tone}
+        {...props}
+      />
+    );
   }
 );
 
